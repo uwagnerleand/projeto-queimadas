@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Dados locais (CSV grande)
+dados/bruto/*.csv
+dados/tratado/*.csv
+outputs/
+
+# Ambiente
+.env
+.DS_Store

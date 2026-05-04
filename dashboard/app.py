@@ -66,6 +66,47 @@ st.markdown("""
     div.stDownloadButton > button:active {
         background-color: #166534;
     }
+
+    /* Botões gerais do Streamlit */
+    div.stButton > button,
+    div.stDownloadButton > button {
+        color: #ffffff !important;
+        border-radius: 10px !important;
+    }
+
+    div.stButton > button {
+        background-color: #2563eb !important;
+        border: none !important;
+    }
+
+    div.stButton > button:hover {
+        background-color: #1d4ed8 !important;
+        color: #ffffff !important;
+    }
+
+    div.stButton > button:active {
+        background-color: #1e40af !important;
+    }
+
+    /* Controles do gráfico Altair/Vega */
+    .vega-actions button,
+    .vega-actions button:hover,
+    .vega-actions button:focus {
+        background-color: rgba(255,255,255,0.95) !important;
+        color: #111827 !important;
+        border: 1px solid rgba(0,0,0,0.12) !important;
+        box-shadow: none !important;
+    }
+
+    .vega-actions button svg,
+    .vega-actions button path {
+        fill: #111827 !important;
+        stroke: #111827 !important;
+    }
+
+    .vega-actions .vega-icon-button {
+        background-color: rgba(255,255,255,0.95) !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -169,13 +210,17 @@ with tab1:
 
         grafico["mes_nome"] = grafico["mes"].map(meses)
 
-        chart = alt.Chart(grafico).mark_bar(color="#2563eb").encode(
+        chart = alt.Chart(grafico).mark_bar(color="#2563eb", opacity=0.92).encode(
             x=alt.X("mes_nome:N", title="Mês", sort=list(meses.values())),
             y=alt.Y("focos:Q", title="Focos"),
             tooltip=["mes_nome", "focos"]
+        ).properties(
+            background="#ffffff"
+        ).configure_view(
+            fill="#ffffff"
         ).configure_axis(
-            labelColor="#ffffff",
-            titleColor="#ffffff"
+            labelColor="#111827",
+            titleColor="#1f2937"
         )
 
         st.altair_chart(chart, width="stretch")
@@ -199,13 +244,17 @@ with tab1:
             serie["ano"].astype(str) + "-" + serie["mes"].astype(str)
         )
 
-        chart = alt.Chart(serie).mark_line(color="#dc2626").encode(
+        chart = alt.Chart(serie).mark_line(color="#dc2626", point=True).encode(
             x=alt.X("data:T", title="Tempo"),
             y=alt.Y("focos:Q", title="Focos"),
             tooltip=["data", "focos"]
+        ).properties(
+            background="#ffffff"
+        ).configure_view(
+            fill="#ffffff"
         ).configure_axis(
-            labelColor="#ffffff",
-            titleColor="#ffffff"
+            labelColor="#111827",
+            titleColor="#1f2937"
         )
 
         st.altair_chart(chart, width="stretch")
@@ -252,13 +301,17 @@ with tab3:
 
     top10 = ranking.sort_values("focos", ascending=False).head(10)
 
-    chart = alt.Chart(top10).mark_bar(color="#16a34a").encode(
+    chart = alt.Chart(top10).mark_bar(color="#16a34a", opacity=0.92).encode(
         x=alt.X("focos:Q", title="Focos"),
         y=alt.Y("municipio:N", sort="-x"),
         tooltip=["municipio", "focos"]
+    ).properties(
+        background="#ffffff"
+    ).configure_view(
+        fill="#ffffff"
     ).configure_axis(
-        labelColor="#ffffff",
-        titleColor="#ffffff"
+        labelColor="#111827",
+        titleColor="#1f2937"
     )
 
     st.altair_chart(chart, width="stretch")
