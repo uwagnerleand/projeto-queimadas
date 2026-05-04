@@ -43,6 +43,27 @@ st.markdown("""
         padding: 15px;
         box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
+                   
+    /* Botão Download (principal) */
+    div.stDownloadButton > button {
+        background-color: #16a34a;   /* cor do fundo */
+        color: white;               /* cor do texto */
+        border-radius: 10px;
+        border: none;
+        font-weight: 600;
+        padding: 0.6rem 1rem;
+    }   
+
+    /* Hover (quando passa o mouse) */
+    div.stDownloadButton > button:hover {
+        background-color: #2563eb;
+        color: white;
+    }
+
+    /* Clique */
+    div.stDownloadButton > button:active {
+        background-color: #166534;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -145,8 +166,8 @@ with tab1:
             y=alt.Y("focos:Q", title="Focos"),
             tooltip=["mes_nome", "focos"]
         ).configure_axis(
-            labelColor="#1f2937",
-            titleColor="#1f2937"
+            labelColor="#ffffff",
+            titleColor="#ffffff"
         )
 
         st.altair_chart(chart, width="stretch")
@@ -175,8 +196,8 @@ with tab1:
             y=alt.Y("focos:Q", title="Focos"),
             tooltip=["data", "focos"]
         ).configure_axis(
-            labelColor="#1f2937",
-            titleColor="#1f2937"
+            labelColor="#ffffff",
+            titleColor="#ffffff"
         )
 
         st.altair_chart(chart, width="stretch")
@@ -228,8 +249,8 @@ with tab3:
         y=alt.Y("municipio:N", sort="-x"),
         tooltip=["municipio", "focos"]
     ).configure_axis(
-        labelColor="#1f2937",
-        titleColor="#1f2937"
+        labelColor="#ffffff",
+        titleColor="#ffffff"
     )
 
     st.altair_chart(chart, width="stretch")
@@ -258,7 +279,7 @@ with tab4:
         return output.getvalue()
 
     st.download_button(
-        "📥 Baixar Excel",
+        "📥 Baixar Excel", 
         data=gerar_excel(),
         file_name=f"queimadas_{municipio_sel}_{ano_sel}.xlsx"
     )
