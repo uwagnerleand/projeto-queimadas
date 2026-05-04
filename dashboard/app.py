@@ -9,10 +9,12 @@ from io import BytesIO
 # 🎨 CONFIG + TEMA CORRIGIDO
 # =========================
 st.set_page_config(
-    page_title="Monitoramento de Queimadas",
+    page_title="Projeto Queimadas",
     layout="wide",
-    page_icon="🔥"
+    page_icon="assets/icon.png"
 )
+
+
 
 # CSS corrigido (remove conflito de cor branca)
 st.markdown("""
@@ -111,12 +113,18 @@ df_estado_ano = df[
     (df["ano"] == ano_sel)
 ]
 
+
 # =========================
 # 🧠 HEADER
 # =========================
-st.title("🔥 Monitoramento de Queimadas")
-st.caption(f"{municipio_sel} - {estado_sel} | Ano: {ano_sel}")
+col1, col2 = st.columns([1, 4])
 
+with col1:
+    st.image("assets/logo_q.png", width=120)
+
+with col2:
+    st.title("Monitoramento de Queimadas")
+    st.caption(f"{municipio_sel} - {estado_sel} | Ano: {ano_sel}")
 # =========================
 # 📊 MÉTRICAS
 # =========================
