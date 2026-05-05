@@ -4,6 +4,7 @@ import folium
 import altair as alt
 from streamlit_folium import st_folium
 from io import BytesIO
+import os
 
 # =========================
 # 🎨 CONFIG + TEMA CORRIGIDO
@@ -115,7 +116,9 @@ st.markdown("""
 # =========================
 @st.cache_data
 def carregar_dados():
-    df = pd.read_csv("dados/tratado/queimadas_tratado.csv")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    data_path = os.path.join(script_dir, "..", "dados", "tratado", "queimadas_tratado.csv")
+    df = pd.read_csv(data_path)
 
     df = df.rename(columns={"lat": "latitude", "lon": "longitude"})
 
@@ -161,7 +164,9 @@ df_estado_ano = df[
 col1, col2 = st.columns([1, 4])
 
 with col1:
-    st.image("assets/logo_q.png", width=120)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    logo_path = os.path.join(script_dir, "..", "assets", "logo_q.png")
+    st.image(logo_path, width=120)
 
 with col2:
     st.title("Monitoramento de Queimadas")
