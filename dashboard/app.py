@@ -212,10 +212,18 @@ except Exception as exc:
     st.exception(exc)
     st.stop()
 
+# Debug: mostrar anos disponíveis
+with st.expander("🔍 Debug - Anos disponíveis"):
+    st.write(f"Anos no dataset: {sorted(df['ano'].unique(), reverse=True)}")
+
 # =========================
 # 🎛️ FILTROS
 # =========================
 st.sidebar.title("🎛️ Filtros")
+
+if st.sidebar.button("🔄 Limpar Cache"):
+    st.cache_data.clear()
+    st.rerun()
 
 estado_sel = st.sidebar.selectbox("Estado", sorted(df["estado"].unique()))
 df_estado = df[df["estado"] == estado_sel]
