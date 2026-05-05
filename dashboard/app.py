@@ -188,7 +188,10 @@ def carregar_dados():
 
 
 if not os.path.exists(DATA_FILE):
-    st.warning("Arquivo local não encontrado. Carregando dados do INPE como fallback.")
+    st.info(
+        "Arquivo local não encontrado nesta implantação. "
+        "O app usará os dados do INPE como fallback."
+    )
 
 try:
     df = carregar_dados()
