@@ -221,7 +221,7 @@ estado_sel = st.sidebar.selectbox("Estado", sorted(df["estado"].unique()))
 df_estado = df[df["estado"] == estado_sel]
 
 municipio_sel = st.sidebar.selectbox("Município", sorted(df_estado["municipio"].unique()))
-ano_sel = st.sidebar.selectbox("Ano", sorted(df_estado["ano"].unique(), reverse=True))
+ano_sel = st.sidebar.selectbox("Ano", sorted(df["ano"].unique(), reverse=True))
 
 df_filtrado = df[
     (df["estado"] == estado_sel) &
