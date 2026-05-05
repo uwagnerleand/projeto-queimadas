@@ -5,6 +5,15 @@ import altair as alt
 from streamlit_folium import st_folium
 from io import BytesIO
 import os
+import requests
+import zipfile
+import io
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
+DATA_FILE = os.path.join(ROOT_DIR, "dados", "tratado", "queimadas_tratado.csv")
+LOGO_FILE = os.path.join(ROOT_DIR, "assets", "logo_q.png")
+ICON_FILE = os.path.join(ROOT_DIR, "assets", "icon.png")
 
 # =========================
 # 🎨 CONFIG + TEMA CORRIGIDO
@@ -12,7 +21,7 @@ import os
 st.set_page_config(
     page_title="Projeto Queimadas",
     layout="wide",
-    page_icon="assets/icon.png"
+    page_icon=ICON_FILE if os.path.exists(ICON_FILE) else "🔥"
 )
 
 
@@ -114,11 +123,55 @@ st.markdown("""
 # =========================
 # 📥 DADOS
 # =========================
+
+def carregar_dados_inpe(ano=2024):
+    url = f"https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/anual/Brasil_sat_ref/focos_br_ref_{ano}.zip"
+    response = requests.get(url, timeout=60)
+    response.raise_for_status()
+
+    zip_file = zipfile.ZipFile(io.BytesIO(response.content))
+    arquivos = zip_file.namelist()
+    nome_csv = next((f for f in arquivos if f.endswith(".csv")), None)
+    if nome_csv is None:
+        raise FileNotFoundError("Nenhum arquivo CSV encontrado no ZIP do INPE.")
+
+    try:
+        with zip_file.open(nome_csv) as f:
+            df = pd.read_csv(f)
+    except Exception:
+        with zip_file.open(nome_csv) as f:
+            df = pd.read_csv(f, encoding="latin1")
+
+    df.columns = df.columns.str.lower()
+    if "estado" in df.columns:
+        df["estado"] = df["estado"].astype(str).str.upper()
+    if "municipio" in df.columns:
+        df["municipio"] = df["municipio"].astype(str).str.upper()
+
+    if "datahora" in df.columns:
+        col_data = "datahora"
+    elif "data" in df.columns:
+        col_data = "data"
+    elif "data_pas" in df.columns:
+        col_data = "data_pas"
+    else:
+        raise FileNotFoundError("Coluna de data não encontrada no CSV do INPE.")
+
+    df["data"] = pd.to_datetime(df[col_data], errors="coerce")
+    df = df.dropna(subset=["data"])
+
+    df["mes"] = df["data"].dt.month
+    df["ano"] = df["data"].dt.year
+
+    return df
+
+
 @st.cache_data
 def carregar_dados():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    data_path = os.path.join(script_dir, "..", "dados", "tratado", "queimadas_tratado.csv")
-    df = pd.read_csv(data_path)
+    if os.path.exists(DATA_FILE):
+        df = pd.read_csv(DATA_FILE)
+    else:
+        df = carregar_dados_inpe()
 
     df = df.rename(columns={"lat": "latitude", "lon": "longitude"})
 
@@ -133,7 +186,17 @@ def carregar_dados():
 
     return df
 
-df = carregar_dados()
+
+if not os.path.exists(DATA_FILE):
+    st.warning("Arquivo local não encontrado. Carregando dados do INPE como fallback.")
+
+try:
+    df = carregar_dados()
+except Exception as exc:
+    st.error("Não foi possível carregar os dados de queimadas.")
+    st.write(f"Caminho verificado: {DATA_FILE}")
+    st.exception(exc)
+    st.stop()
 
 # =========================
 # 🎛️ FILTROS
@@ -164,9 +227,10 @@ df_estado_ano = df[
 col1, col2 = st.columns([1, 4])
 
 with col1:
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    logo_path = os.path.join(script_dir, "..", "assets", "logo_q.png")
-    st.image(logo_path, width=120)
+    if os.path.exists(LOGO_FILE):
+        st.image(LOGO_FILE, width=120)
+    else:
+        st.write("Logo não encontrada")
 
 with col2:
     st.title("Monitoramento de Queimadas")
