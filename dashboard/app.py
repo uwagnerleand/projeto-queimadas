@@ -14,6 +14,7 @@ ROOT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
 DATA_FILE = os.path.join(ROOT_DIR, "dados", "tratado", "queimadas_tratado.csv")
 LOGO_FILE = os.path.join(ROOT_DIR, "assets", "logo_q.png")
 ICON_FILE = os.path.join(ROOT_DIR, "assets", "icon.png")
+INPE_YEARS = [2020, 2021, 2022, 2024]
 
 # =========================
 # 🎨 CONFIG + TEMA CORRIGIDO
@@ -124,7 +125,7 @@ st.markdown("""
 # 📥 DADOS
 # =========================
 
-def carregar_dados_inpe(ano=2024):
+def carregar_dados_inpe_ano(ano):
     url = f"https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/anual/Brasil_sat_ref/focos_br_ref_{ano}.zip"
     response = requests.get(url, timeout=60)
     response.raise_for_status()
@@ -133,7 +134,7 @@ def carregar_dados_inpe(ano=2024):
     arquivos = zip_file.namelist()
     nome_csv = next((f for f in arquivos if f.endswith(".csv")), None)
     if nome_csv is None:
-        raise FileNotFoundError("Nenhum arquivo CSV encontrado no ZIP do INPE.")
+        raise FileNotFoundError(f"Nenhum arquivo CSV encontrado no ZIP do INPE para o ano {ano}.")
 
     try:
         with zip_file.open(nome_csv) as f:
@@ -155,7 +156,7 @@ def carregar_dados_inpe(ano=2024):
     elif "data_pas" in df.columns:
         col_data = "data_pas"
     else:
-        raise FileNotFoundError("Coluna de data não encontrada no CSV do INPE.")
+        raise FileNotFoundError(f"Coluna de data não encontrada no CSV do INPE para o ano {ano}.")
 
     df["data"] = pd.to_datetime(df[col_data], errors="coerce")
     df = df.dropna(subset=["data"])
@@ -163,6 +164,16 @@ def carregar_dados_inpe(ano=2024):
     df["mes"] = df["data"].dt.month
     df["ano"] = df["data"].dt.year
 
+    return df
+
+
+def carregar_dados_inpe():
+    dfs = []
+    for ano in INPE_YEARS:
+        dfs.append(carregar_dados_inpe_ano(ano))
+
+    df = pd.concat(dfs, ignore_index=True)
+    df = df.drop_duplicates()
     return df
 
 
@@ -190,7 +201,7 @@ def carregar_dados():
 if not os.path.exists(DATA_FILE):
     st.info(
         "Arquivo local não encontrado nesta implantação. "
-        "O app usará os dados do INPE como fallback."
+        f"O app usará os dados do INPE como fallback para os anos: {', '.join(map(str, INPE_YEARS))}."
     )
 
 try:
