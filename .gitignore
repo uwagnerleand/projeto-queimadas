@@ -21,6 +21,7 @@ build/
 # Dados locais (CSV grande)
 dados/bruto/*.csv
 dados/tratado/*.csv
+
 outputs/
 
 # Ambiente
