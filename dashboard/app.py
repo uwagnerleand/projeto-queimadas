@@ -98,18 +98,130 @@ st.markdown("""
     }
 
     section[data-testid="stSidebar"] .stSelectbox label {
-        color: #ffffff !important;
+        color: #E5E7EB !important;
         font-weight: 600;
+        font-size: 0.95rem;
     }
     
-    /* Melhorar contraste dos selects na sidebar */
+    /* === SELECTBOX NA SIDEBAR - ALTO CONTRASTE === */
+    /* Container principal do select */
     section[data-testid="stSidebar"] .stSelectbox > div > div {
-        background-color: #1e293b !important;
-        border-color: #475569 !important;
+        background-color: #1F2937 !important;
+        border: 2px solid #4B5563 !important;
+        border-radius: 8px !important;
+        transition: all 0.2s ease !important;
     }
     
+    /* Hover no select fechado */
     section[data-testid="stSidebar"] .stSelectbox > div > div:hover {
-        border-color: #ffffff !important;
+        border-color: #6B7280 !important;
+    }
+    
+    /* Texto dentro do input selecionado */
+    section[data-testid="stSidebar"] .stSelectbox > div > div input,
+    section[data-testid="stSidebar"] .stSelectbox > div > div .css-1dimb5e,
+    section[data-testid="stSidebar"] .stSelectbox > div > div .css-19sk7h4 {
+        color: #E5E7EB !important;
+        font-weight: 500;
+    }
+    
+    /* Placeholder - deve ser mais claro que o texto, não mais escuro */
+    section[data-testid="stSidebar"] .stSelectbox > div > div input::placeholder {
+        color: #9CA3AF !important;
+    }
+    
+    /* Seta do dropdown - cor clara */
+    section[data-testid="stSidebar"] .stSelectbox > div > div svg {
+        color: #D1D5DB !important;
+    }
+    
+    /* === DROPDOWN ABERTO - LISTA DE OPÇÕES === */
+    /* Menu dropdown - container */
+    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"],
+    section[data-testid="stSidebar"] .stSelectbox div[data-baseweb="menu"],
+    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll {
+        background-color: #111827 !important;
+        border: 2px solid #4B5563 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+    }
+    
+    /* Opções do dropdown - múltiplos seletores para garantir */
+    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"] [data-baseweb="option"],
+    section[data-testid="stSidebar"] .stSelectbox div[data-baseweb="menu"] div[data-baseweb="option"],
+    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll div[role="option"],
+    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll > div {
+        color: #F9FAFB !important;
+        background-color: #111827 !important;
+        padding: 10px 14px !important;
+        font-weight: 400;
+        transition: all 0.15s ease !important;
+    }
+    
+    /* Hover nas opções */
+    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"] [data-baseweb="option"]:hover,
+    section[data-testid="stSidebar"] .stSelectbox div[data-baseweb="menu"] div[data-baseweb="option"]:hover,
+    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll div[role="option"]:hover,
+    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll > div:hover {
+        background-color: #374151 !important;
+        color: #F9FAFB !important;
+    }
+    
+    /* Opção selecionada */
+    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"] [data-baseweb="option"][aria-selected="true"],
+    section[data-testid="stSidebar"] .stSelectbox div[data-baseweb="menu"] div[data-baseweb="option"][aria-selected="true"],
+    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll div[role="option"][aria-selected="true"],
+    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll > div[aria-selected="true"] {
+        background-color: #1F2937 !important;
+        color: #F9FAFB !important;
+        font-weight: 600;
+        border-left: 3px solid #6B7280;
+    }
+    
+    /* Opção selecionada com hover */
+    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"] [data-baseweb="option"][aria-selected="true"]:hover,
+    section[data-testid="stSidebar"] .stSelectbox div[data-baseweb="menu"] div[data-baseweb="option"][aria-selected="true"]:hover,
+    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll div[role="option"][aria-selected="true"]:hover {
+        background-color: #374151 !important;
+        color: #F9FAFB !important;
+    }
+    
+    /* Foco no dropdown */
+    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"] [data-baseweb="option"]:focus,
+    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll div:focus {
+        outline: 2px solid #6B7280 !important;
+        outline-offset: -2px;
+    }
+    
+    /* Forçar cor do texto em todos os elementos do dropdown */
+    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"] *,
+    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll * {
+        color: #F9FAFB !important;
+        background-color: transparent !important;
+    }
+    
+    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"] [data-baseweb="option"] *,
+    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll > div * {
+        color: #F9FAFB !important;
+    }
+    
+    /* Barra de rolagem do dropdown */
+    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"]::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"]::-webkit-scrollbar-track {
+        background: #1F2937;
+        border-radius: 4px;
+    }
+    
+    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"]::-webkit-scrollbar-thumb {
+        background: #4B5563;
+        border-radius: 4px;
+    }
+    
+    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"]::-webkit-scrollbar-thumb:hover {
+        background: #6B7280;
     }
 
     /* === HEADER === */
