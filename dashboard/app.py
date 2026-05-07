@@ -10,6 +10,17 @@ import zipfile
 import io
 from datetime import datetime
 
+# =========================
+# 📦 IMPORTS PARA EXPORTAÇÃO GEOESPACIAL
+# =========================
+# NOTA: Instale as dependências com:
+# pip install geopandas shapely fiona pyogrio
+# Ou no Windows: conda install geopandas
+import geopandas as gpd
+from shapely.geometry import Point
+import tempfile
+import shutil
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
 DATA_FILE = os.path.join(ROOT_DIR, "dados", "tratado", "queimadas_tratado.csv")
@@ -32,477 +43,588 @@ st.set_page_config(
 # =========================
 st.markdown("""
 <style>
-    /* === CONFIGURAÇÕES GERAIS === */
-    :root {
-        --primary-color: #2563eb;
-        --primary-hover: #1d4ed8;
-        --primary-active: #1e40af;
-        --secondary-color: #16a34a;
-        --secondary-hover: #15803d;
-        --danger-color: #dc2626;
-        --warning-color: #f59e0b;
-        --bg-main: #f8fafc;
-        --bg-card: #ffffff;
-        --bg-sidebar: #0f172a;
-        --text-primary: #1e293b;
-        --text-secondary: #64748b;
-        --text-light: #94a3b8;
-        --border-color: #e2e8f0;
-        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        --radius-sm: 8px;
-        --radius-md: 12px;
-        --radius-lg: 16px;
-    }
 
-    /* Fundo principal */
-    .stApp {
-        background-color: var(--bg-main);
-    }
+/* =========================================
+   VARIÁVEIS GLOBAIS
+========================================= */
+:root {
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-active: #1e40af;
 
-    /* Tipografia */
-    h1, h2, h3, h4, h5, h6 {
-        color: var(--text-primary) !important;
-        font-weight: 700 !important;
-        letter-spacing: -0.025em;
-    }
+    --secondary-color: #16a34a;
+    --secondary-hover: #15803d;
 
-    h1 { font-size: 2.25rem !important; }
-    h2 { font-size: 1.75rem !important; }
-    h3 { font-size: 1.375rem !important; }
-    h4 { font-size: 1.125rem !important; }
+    --danger-color: #dc2626;
+    --warning-color: #f59e0b;
 
-    p, span, label, div {
-        color: var(--text-primary) !important;
-    }
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-sidebar: #0f172a;
 
-    /* === SIDEBAR PREMIUM === */
-    section[data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-    }
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-light: #94a3b8;
 
-    section[data-testid="stSidebar"] .stSidebarContent {
-        padding-top: 2rem !important;
-    }
+    --border-color: #e2e8f0;
 
-    section[data-testid="stSidebar"] h1, 
-    section[data-testid="stSidebar"] h2, 
-    section[data-testid="stSidebar"] h3,
-    section[data-testid="stSidebar"] label,
-    section[data-testid="stSidebar"] p,
-    section[data-testid="stSidebar"] span {
-        color: #fFf5f9 !important;
-    }
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.08);
+    --shadow-lg: 0 10px 20px rgba(0,0,0,0.10);
 
-    section[data-testid="stSidebar"] .stSelectbox label {
-        color: #E5E7EB !important;
-        font-weight: 600;
-        font-size: 0.95rem;
-    }
-    
-    /* === SELECTBOX NA SIDEBAR - ALTO CONTRASTE === */
-    /* Container principal do select */
-    section[data-testid="stSidebar"] .stSelectbox > div > div {
-        background-color: #1F2937 !important;
-        border: 2px solid #4B5563 !important;
-        border-radius: 8px !important;
-        transition: all 0.2s ease !important;
-    }
-    
-    /* Hover no select fechado */
-    section[data-testid="stSidebar"] .stSelectbox > div > div:hover {
-        border-color: #6B7280 !important;
-    }
-    
-    /* Texto dentro do input selecionado */
-    section[data-testid="stSidebar"] .stSelectbox > div > div input,
-    section[data-testid="stSidebar"] .stSelectbox > div > div .css-1dimb5e,
-    section[data-testid="stSidebar"] .stSelectbox > div > div .css-19sk7h4 {
-        color: #E5E7EB !important;
-        font-weight: 500;
-    }
-    
-    /* Placeholder - deve ser mais claro que o texto, não mais escuro */
-    section[data-testid="stSidebar"] .stSelectbox > div > div input::placeholder {
-        color: #9CA3AF !important;
-    }
-    
-    /* Seta do dropdown - cor clara */
-    section[data-testid="stSidebar"] .stSelectbox > div > div svg {
-        color: #D1D5DB !important;
-    }
-    
-    /* === DROPDOWN ABERTO - LISTA DE OPÇÕES === */
-    /* Menu dropdown - container */
-    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"],
-    section[data-testid="stSidebar"] .stSelectbox div[data-baseweb="menu"],
-    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll {
-        background-color: #111827 !important;
-        border: 2px solid #4B5563 !important;
-        border-radius: 8px !important;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
-    }
-    
-    /* Opções do dropdown - múltiplos seletores para garantir */
-    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"] [data-baseweb="option"],
-    section[data-testid="stSidebar"] .stSelectbox div[data-baseweb="menu"] div[data-baseweb="option"],
-    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll div[role="option"],
-    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll > div {
-        color: #F9FAFB !important;
-        background-color: #111827 !important;
-        padding: 10px 14px !important;
-        font-weight: 400;
-        transition: all 0.15s ease !important;
-    }
-    
-    /* Hover nas opções */
-    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"] [data-baseweb="option"]:hover,
-    section[data-testid="stSidebar"] .stSelectbox div[data-baseweb="menu"] div[data-baseweb="option"]:hover,
-    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll div[role="option"]:hover,
-    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll > div:hover {
-        background-color: #374151 !important;
-        color: #F9FAFB !important;
-    }
-    
-    /* Opção selecionada */
-    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"] [data-baseweb="option"][aria-selected="true"],
-    section[data-testid="stSidebar"] .stSelectbox div[data-baseweb="menu"] div[data-baseweb="option"][aria-selected="true"],
-    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll div[role="option"][aria-selected="true"],
-    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll > div[aria-selected="true"] {
-        background-color: #1F2937 !important;
-        color: #F9FAFB !important;
-        font-weight: 600;
-        border-left: 3px solid #6B7280;
-    }
-    
-    /* Opção selecionada com hover */
-    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"] [data-baseweb="option"][aria-selected="true"]:hover,
-    section[data-testid="stSidebar"] .stSelectbox div[data-baseweb="menu"] div[data-baseweb="option"][aria-selected="true"]:hover,
-    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll div[role="option"][aria-selected="true"]:hover {
-        background-color: #374151 !important;
-        color: #F9FAFB !important;
-    }
-    
-    /* Foco no dropdown */
-    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"] [data-baseweb="option"]:focus,
-    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll div:focus {
-        outline: 2px solid #6B7280 !important;
-        outline-offset: -2px;
-    }
-    
-    /* Forçar cor do texto em todos os elementos do dropdown */
-    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"] *,
-    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll * {
-        color: #F9FAFB !important;
-        background-color: transparent !important;
-    }
-    
-    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"] [data-baseweb="option"] *,
-    section[data-testid="stSidebar"] .stSelectbox .stVirtualScroll > div * {
-        color: #F9FAFB !important;
-    }
-    
-    /* Barra de rolagem do dropdown */
-    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"]::-webkit-scrollbar {
-        width: 8px;
-    }
-    
-    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"]::-webkit-scrollbar-track {
-        background: #1F2937;
-        border-radius: 4px;
-    }
-    
-    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"]::-webkit-scrollbar-thumb {
-        background: #4B5563;
-        border-radius: 4px;
-    }
-    
-    section[data-testid="stSidebar"] .stSelectbox [data-baseweb="menu"]::-webkit-scrollbar-thumb:hover {
-        background: #6B7280;
-    }
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+}
 
-    /* === HEADER === */
+/* =========================================
+   APP
+========================================= */
+
+.stApp {
+    background-color: var(--bg-main);
+}
+
+/* =========================================
+   TIPOGRAFIA
+========================================= */
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary) !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em;
+}
+
+p, span, label {
+    color: var(--text-primary);
+}
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+section[data-testid="stSidebar"] {
+    background: linear-gradient(
+        180deg,
+        #0f172a 0%,
+        #1e293b 100%
+    );
+    
+    border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+/* TEXTO SOMENTE DA SIDEBAR */
+
+section[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] p,
+section[data-testid="stSidebar"] span,
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3,
+section[data-testid="stSidebar"] h4,
+section[data-testid="stSidebar"] h5,
+section[data-testid="stSidebar"] h6 {
+    color: #F9FAFB !important;
+}
+
+section[data-testid="stSidebar"] hr {
+    border-color: rgba(255,255,255,0.08) !important;
+}
+
+/* =========================================
+   SELECTBOX STREAMLIT
+========================================= */
+
+div[data-baseweb="select"] > div {
+    background-color: #111827 !important;
+
+    border: 1px solid #4B5563 !important;
+
+    border-radius: 10px !important;
+
+    min-height: 46px !important;
+
+    transition: all 0.2s ease !important;
+}
+
+/* Hover */
+
+div[data-baseweb="select"] > div:hover {
+    border-color: #6B7280 !important;
+}
+
+/* Focus */
+
+div[data-baseweb="select"]:focus-within > div {
+    border-color: #3B82F6 !important;
+
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.25) !important;
+}
+
+/* Texto */
+
+div[data-baseweb="select"] span {
+    color: #F9FAFB !important;
+
+    font-weight: 500 !important;
+}
+
+/* Input */
+
+div[data-baseweb="select"] input {
+    color: #F9FAFB !important;
+}
+
+/* Placeholder */
+
+div[data-baseweb="select"] input::placeholder {
+    color: #9CA3AF !important;
+}
+
+/* Ícone */
+
+div[data-baseweb="select"] svg {
+    color: #D1D5DB !important;
+}
+
+/* =========================================
+   DROPDOWN ABERTO
+========================================= */
+
+div[role="listbox"] {
+    background-color: #111827 !important;
+
+    border: 1px solid #4B5563 !important;
+
+    border-radius: 10px !important;
+
+    overflow: hidden !important;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35) !important;
+}
+
+/* Opções */
+
+div[role="option"] {
+    background-color: #111827 !important;
+
+    color: #F9FAFB !important;
+
+    padding: 10px 14px !important;
+
+    transition: all 0.15s ease !important;
+}
+
+/* Hover */
+
+div[role="option"]:hover {
+    background-color: #374151 !important;
+
+    color: #FFFFFF !important;
+}
+
+/* Selecionado */
+
+div[role="option"][aria-selected="true"] {
+    background-color: #1F2937 !important;
+
+    color: #FFFFFF !important;
+
+    font-weight: 600 !important;
+
+    border-left: 3px solid #3B82F6 !important;
+}
+
+/* =========================================
+   SCROLLBAR
+========================================= */
+
+div[role="listbox"]::-webkit-scrollbar {
+    width: 8px;
+}
+
+div[role="listbox"]::-webkit-scrollbar-track {
+    background: #111827;
+}
+
+div[role="listbox"]::-webkit-scrollbar-thumb {
+    background: #4B5563;
+
+    border-radius: 999px;
+}
+
+div[role="listbox"]::-webkit-scrollbar-thumb:hover {
+    background: #6B7280;
+}
+
+/* =========================================
+   BOTÕES
+========================================= */
+
+.stButton > button,
+.stDownloadButton > button {
+
+    border: none !important;
+
+    border-radius: var(--radius-sm) !important;
+
+    color: white !important;
+
+    font-weight: 600 !important;
+
+    transition: all 0.2s ease !important;
+}
+
+/* Botão normal */
+
+.stButton > button {
+
+    background: linear-gradient(
+        135deg,
+        var(--primary-color) 0%,
+        #7c3aed 100%
+    ) !important;
+}
+
+.stButton > button:hover {
+
+    transform: translateY(-1px);
+
+    box-shadow: var(--shadow-md);
+
+    background: linear-gradient(
+        135deg,
+        var(--primary-hover) 0%,
+        #6d28d9 100%
+    ) !important;
+}
+
+.stDownloadButton > button {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    padding: 0.5rem 1rem !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
+}
+
+.stDownloadButton > button:hover {
+    background: linear-gradient(135deg, #34d399 0%, #047857 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3) !important;
+    color: white !important;
+}
+
+/* =========================================
+   CARDS
+========================================= */
+
+.content-card,
+.metric-card {
+
+    background: var(--bg-card);
+
+    border-radius: var(--radius-md);
+
+    border: 1px solid var(--border-color);
+
+    padding: 1.5rem;
+
+    box-shadow: var(--shadow-sm);
+
+    color: var(--text-primary) !important;
+}
+
+.metric-card:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow: var(--shadow-lg);
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.header-container {
+
+    background: linear-gradient(
+        135deg,
+        var(--primary-color) 0%,
+        #7c3aed 100%
+    );
+
+    border-radius: var(--radius-lg);
+
+    padding: 2rem;
+
+    color: white;
+
+    box-shadow: var(--shadow-lg);
+}
+
+.header-title {
+    color: white !important;
+}
+
+.header-subtitle {
+    color: rgba(255,255,255,0.9) !important;
+}
+
+/* =========================================
+   TABS
+========================================= */
+
+.stTabs [data-baseweb="tab-list"] {
+
+    background: white;
+
+    border-radius: var(--radius-md);
+
+    padding: 0.25rem;
+
+    border: 1px solid var(--border-color);
+}
+
+.stTabs [data-baseweb="tab"] {
+
+    border-radius: var(--radius-sm);
+
+    transition: 0.2s ease;
+
+    color: var(--text-primary) !important;
+}
+
+.stTabs [aria-selected="true"] {
+
+    background: linear-gradient(
+        135deg,
+        var(--primary-color) 0%,
+        #7c3aed 100%
+    ) !important;
+
+    color: white !important;
+}
+
+/* =========================================
+   DATAFRAME
+========================================= */
+
+.stDataFrame {
+
+    border-radius: var(--radius-md);
+
+    overflow: hidden;
+}
+
+/* =========================================
+   EXPANDER
+========================================= */
+
+.streamlit-expanderHeader {
+
+    border-radius: var(--radius-sm);
+
+    border: 1px solid var(--border-color);
+
+    background: #f8fafc !important;
+
+    color: var(--text-primary) !important;
+}
+
+/* =========================================
+   TEXTO DO CONTEÚDO PRINCIPAL
+========================================= */
+
+.main .block-container,
+.main .block-container p,
+.main .block-container span,
+.main .block-container div,
+.main .block-container label {
+    color: #1e293b !important;
+}
+
+/* Métricas */
+
+.metric-label {
+    color: #64748b !important;
+}
+
+.metric-value {
+    color: #1e293b !important;
+}
+
+.metric-trend {
+    color: #64748b !important;
+}
+
+/* =========================================
+   RESPONSIVIDADE
+========================================= */
+
+@media (max-width: 768px) {
+
     .header-container {
-        background: linear-gradient(135deg, var(--primary-color) 0%, #7c3aed 100%);
-        border-radius: var(--radius-lg);
-        padding: 2rem;
-        margin-bottom: 1.5rem;
-        box-shadow: var(--shadow-xl);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .header-container::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -50%;
-        width: 100%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-        pointer-events: none;
+        padding: 1.5rem;
     }
 
     .header-title {
-        color: white !important;
-        font-size: 2rem !important;
-        font-weight: 700 !important;
-        margin-bottom: 0.5rem !important;
-        position: relative;
-        z-index: 1;
+        font-size: 1.5rem !important;
     }
+}
 
-    .header-subtitle {
-        color: rgba(255, 255, 255, 0.9) !important;
-        font-size: 1rem !important;
-        font-weight: 400 !important;
-        position: relative;
-        z-index: 1;
-    }
-
-    /* === MÉTRICAS EM CARDS === */
-    .metric-card {
-        background: var(--bg-card);
-        border-radius: var(--radius-md);
-        padding: 1.5rem;
-        box-shadow: var(--shadow-md);
-        border: 1px solid var(--border-color);
-        transition: all 0.3s ease;
-        height: 100%;
-    }
-
-    .metric-card:hover {
-        box-shadow: var(--shadow-lg);
-        transform: translateY(-2px);
-    }
-
-    .metric-icon {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .metric-label {
-        color: var(--text-secondary) !important;
-        font-size: 0.875rem !important;
-        font-weight: 500 !important;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 0.25rem;
-    }
-
-    .metric-value {
-        color: var(--text-primary) !important;
-        font-size: 2rem !important;
-        font-weight: 700 !important;
-        line-height: 1.2;
-    }
-
-    .metric-trend {
-        font-size: 0.75rem !important;
-        color: var(--text-secondary) !important;
-        margin-top: 0.25rem;
-    }
-
-    /* === CARDS DE CONTEÚDO === */
-    .content-card {
-        background: var(--bg-card);
-        border-radius: var(--radius-md);
-        padding: 1.5rem;
-        box-shadow: var(--shadow-md);
-        border: 1px solid var(--border-color);
-        margin-bottom: 1.5rem;
-    }
-
-    .content-card-title {
-        color: var(--text-primary) !important;
-        font-size: 1.125rem !important;
-        font-weight: 600 !important;
-        margin-bottom: 1rem !important;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    /* === BOTÕES === */
-    div.stButton > button {
-        background: linear-gradient(135deg, var(--primary-color) 0%, #7c3aed 100%) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: var(--radius-sm) !important;
-        padding: 0.6rem 1.2rem !important;
-        font-weight: 600 !important;
-        font-size: 0.875rem !important;
-        transition: all 0.2s ease !important;
-        box-shadow: var(--shadow-sm) !important;
-    }
-
-    div.stButton > button:hover {
-        background: linear-gradient(135deg, var(--primary-hover) 0%, #6d28d9 100%) !important;
-        box-shadow: var(--shadow-md) !important;
-        transform: translateY(-1px) !important;
-        color: white !important;
-    }
-
-    div.stButton > button:active {
-        background: linear-gradient(135deg, var(--primary-active) 0%, #5b21b6 100%) !important;
-        transform: translateY(0) !important;
-    }
-
-    /* Botão Download */
-    div.stDownloadButton > button {
-        background: linear-gradient(135deg, var(--secondary-color) 0%, #059669 100%) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: var(--radius-sm) !important;
-        padding: 0.6rem 1.2rem !important;
-        font-weight: 600 !important;
-        font-size: 0.875rem !important;
-        transition: all 0.2s ease !important;
-        box-shadow: var(--shadow-sm) !important;
-    }
-
-    div.stDownloadButton > button:hover {
-        background: linear-gradient(135deg, var(--secondary-hover) 0%, #047857 100%) !important;
-        box-shadow: var(--shadow-md) !important;
-        transform: translateY(-1px) !important;
-        color: white !important;
-    }
-
-    /* === ABAS (TABS) === */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 0;
-        background: var(--bg-card);
-        border-radius: var(--radius-md);
-        padding: 0.25rem;
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--border-color);
-    }
-
-    .stTabs [data-baseweb="tab"] {
-        border-radius: var(--radius-sm);
-        padding: 0.75rem 1.25rem;
-        font-weight: 500;
-        color: var(--text-secondary) !important;
-        transition: all 0.2s ease;
-        margin: 0 0.125rem;
-    }
-
-    .stTabs [data-baseweb="tab"]:hover {
-        background-color: #f1f5f9 !important;
-        color: var(--text-primary) !important;
-    }
-
-    .stTabs [data-baseweb="tab"][aria-selected="true"] {
-        background: linear-gradient(135deg, var(--primary-color) 0%, #7c3aed 100%) !important;
-        color: white !important;
-        font-weight: 600;
-        box-shadow: var(--shadow-sm);
-    }
-
-    /* === SELECTBOX === */
-    .stSelectbox > div > div {
-        border-radius: var(--radius-sm) !important;
-        border: 1px solid var(--border-color) !important;
-    }
-
-    .stSelectbox > div > div:hover {
-        border-color: var(--primary-color) !important;
-    }
-
-    /* === DIVIDER === */
-    hr {
-        border: none !important;
-        border-top: 1px solid var(--border-color) !important;
-        margin: 1.5rem 0 !important;
-    }
-
-    /* === CONTROLES DO GRÁFICO ALTAIR === */
-    .vega-actions button,
-    .vega-actions button:hover,
-    .vega-actions button:focus {
-        background-color: rgba(255,255,255,0.95) !important;
-        color: var(--text-primary) !important;
-        border: 1px solid var(--border-color) !important;
-        border-radius: var(--radius-sm) !important;
-        box-shadow: var(--shadow-sm) !important;
-    }
-
-    .vega-actions button svg,
-    .vega-actions button path {
-        fill: var(--text-primary) !important;
-        stroke: var(--text-primary) !important;
-    }
-
-    /* === EXPANDER === */
-    .streamlit-expanderHeader {
-        background-color: #f1f5f9 !important;
-        border-radius: var(--radius-sm) !important;
-        border: 1px solid var(--border-color) !important;
-    }
-
-    /* === DATAFRAME === */
-    .stDataFrame {
-        border-radius: var(--radius-md);
-        overflow: hidden;
-        box-shadow: var(--shadow-sm);
-    }
-
-    /* === STATUS BADGES === */
-    .status-badge {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .status-badge-success {
-        background-color: #dcfce7;
-        color: #166534;
-    }
-
-    .status-badge-warning {
-        background-color: #fef3c7;
-        color: #92400e;
-    }
-
-    .status-badge-danger {
-        background-color: #fee2e2;
-        color: #991b1b;
-    }
-
-    /* === ANIMAÇÕES === */
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .fade-in {
-        animation: fadeIn 0.5s ease-out;
-    }
-
-    /* === RESPONSIVIDADE === */
-    @media (max-width: 768px) {
-        .header-container {
-            padding: 1.5rem !important;
-        }
-        .header-title {
-            font-size: 1.5rem !important;
-        }
-        .metric-value {
-            font-size: 1.5rem !important;
-        }
-    }
 </style>
 """, unsafe_allow_html=True)
 
 # =========================
-# 📥 DADOS
+# �️ FUNÇÕES DE EXPORTAÇÃO GEOESPACIAL
+# =========================
+
+def preparar_exportacao(df):
+    """
+    Normaliza colunas de exportação convertendo datetimes para string.
+    Preserva a coluna geometry se for um GeoDataFrame.
+    """
+    if isinstance(df, gpd.GeoDataFrame):
+        df_export = df.copy()
+    else:
+        df_export = df.copy()
+
+    # Evitar processamento da coluna geometry
+    geometry_col = None
+    if isinstance(df_export, gpd.GeoDataFrame):
+        geometry_col = df_export.geometry.name
+
+    datetime_cols = [
+        col for col in df_export.columns
+        if col != geometry_col and df_export[col].dtype in ['datetime64[ns]', 'datetime64[ns, UTC]']
+    ]
+    for col in datetime_cols:
+        df_export[col] = df_export[col].dt.strftime('%Y-%m-%d %H:%M:%S')
+
+    object_cols = [
+        col for col in df_export.columns
+        if col != geometry_col and (
+            pd.api.types.is_object_dtype(df_export[col]) or 
+            pd.api.types.is_string_dtype(df_export[col])
+        )
+    ]
+    for col in object_cols:
+        df_export[col] = df_export[col].apply(
+            lambda x: x.isoformat() if isinstance(x, (pd.Timestamp, datetime)) else x
+        )
+
+    return df_export
+
+
+def criar_geodataframe(df):
+    """
+    Cria um GeoDataFrame a partir de um DataFrame com latitude e longitude.
+    """
+    df_geo = preparar_exportacao(df)
+
+    # Verificar se as colunas existem
+    if 'latitude' not in df_geo.columns or 'longitude' not in df_geo.columns:
+        raise ValueError("Colunas 'latitude' e 'longitude' são obrigatórias.")
+
+    # Converter para numérico e remover NaN
+    df_geo = df_geo.copy()
+    df_geo['latitude'] = pd.to_numeric(df_geo['latitude'], errors='coerce')
+    df_geo['longitude'] = pd.to_numeric(df_geo['longitude'], errors='coerce')
+    df_geo = df_geo.dropna(subset=['latitude', 'longitude'])
+
+    if df_geo.empty:
+        raise ValueError("Nenhum dado válido encontrado após conversão para numérico.")
+
+    # Filtrar coordenadas válidas (latitude -90 a 90, longitude -180 a 180)
+    df_geo = df_geo[
+        (df_geo['latitude'].between(-90, 90)) &
+        (df_geo['longitude'].between(-180, 180))
+    ]
+
+    if df_geo.empty:
+        raise ValueError("Nenhuma coordenada válida encontrada após validação de limites.")
+
+    # Criar geometrias
+    geometry = [Point(lon, lat) for lon, lat in zip(df_geo.longitude, df_geo.latitude)]
+
+    # Criar GeoDataFrame
+    gdf = gpd.GeoDataFrame(df_geo, geometry=geometry, crs="EPSG:4326")
+
+    # Validar geometrias
+    gdf = gdf[gdf.geometry.notna()]
+
+    if gdf.empty:
+        raise ValueError("Nenhuma geometria válida criada.")
+
+    return gdf
+
+
+def exportar_shapefile_zip(gdf):
+    """
+    Exporta GeoDataFrame para Shapefile compactado em ZIP.
+    Retorna bytes do arquivo ZIP.
+    """
+    if gdf.empty or gdf.geometry.is_empty.all():
+        return None
+
+    gdf_export = preparar_exportacao(gdf)
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        # IMPORTANTE: adicionar .shp ao caminho para que GeoPandas crie arquivos, não diretório
+        shp_path = os.path.join(temp_dir, "queimadas.shp")
+
+        try:
+            gdf_export.to_file(shp_path, driver="ESRI Shapefile", encoding="utf-8")
+
+            zip_buffer = BytesIO()
+            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                # Adicionar todos os arquivos .shp* do diretório
+                for filename in os.listdir(temp_dir):
+                    file_path = os.path.join(temp_dir, filename)
+                    if os.path.isfile(file_path):
+                        zip_file.write(file_path, filename)
+
+            zip_buffer.seek(0)
+            return zip_buffer.getvalue()
+
+        except Exception as e:
+            return None
+
+
+def exportar_geojson(gdf):
+    """
+    Exporta GeoDataFrame para GeoJSON.
+    Retorna bytes do GeoJSON.
+    """
+    try:
+        gdf_export = preparar_exportacao(gdf)
+        geojson_str = gdf_export.to_json(indent=2)
+        return geojson_str.encode('utf-8')
+    except Exception as e:
+        st.error(f"Erro ao exportar GeoJSON: {str(e)}")
+        return None
+
+
+def exportar_csv(df):
+    """
+    Exporta DataFrame para CSV.
+    Retorna bytes do CSV.
+    """
+    try:
+        df_export = preparar_exportacao(df)
+        csv_buffer = BytesIO()
+        df_export.to_csv(csv_buffer, index=False, encoding='utf-8-sig')
+        csv_buffer.seek(0)
+        return csv_buffer.getvalue()
+    except Exception as e:
+        st.error(f"Erro ao exportar CSV: {str(e)}")
+        return None
+
+# =========================
+# �📥 DADOS
 # =========================
 
 def carregar_dados_inpe_ano(ano):
@@ -968,45 +1090,188 @@ with tab3:
 # 📋 DADOS COMPLETOS
 # =========================
 with tab4:
+
+    # =========================
+    # 📋 HEADER
+    # =========================
     st.markdown("""
     <div class="content-card">
         <div class="content-card-title">
             <span>📋</span> Base de Dados Completa
-        </div>
-        <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-            Visualize e exporte os dados brutos de queimadas para o município e ano selecionados.
-        </p>
-    </div>
+        </div> <p style=" color: var(--text-secondary); margin-top: 0.5rem; margin-bottom: 0; line-height: 1.6; "> Visualize, filtre e exporte os registros de queimadas do município selecionado em formatos tabulares e geoespaciais. </p> </div>
     """, unsafe_allow_html=True)
 
-    # Exibir dataframe com estilização
+    # =========================
+    # 📊 INFO RÁPIDA
+    # =========================
+    st.info(
+        f"📊 {len(df_filtrado):,} registros encontrados | "
+        f"🕒 Atualizado em {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+    )
+
+    # =========================
+    # 📄 DATAFRAME
+    # =========================
     st.dataframe(
         df_filtrado,
         width="stretch",
-        height=400,
+        height=450,
         hide_index=True
     )
 
-    # Botão de download estilizado
-    def gerar_excel():
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine="openpyxl") as writer:
-            df_filtrado.to_excel(writer, sheet_name="Dados", index=False)
-            ranking.to_excel(writer, sheet_name="Ranking", index=False)
-        return output.getvalue()
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    col1, col2 = st.columns([1, 4])
+    # =========================
+    # 📥 EXPORTAÇÃO
+    # =========================
+    st.markdown("""
+    <div style="
+        background: white;
+        padding: 1.5rem;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    "> <h3 style="color:#0f172a;margin-bottom:0.4rem;">📥 Exportação de Dados</h3> <p style=" color:#64748b; margin:0; line-height:1.5;"> Baixe os dados filtrados em formatos compatíveis com planilhas, sistemas GIS e plataformas web. </p> </div>
+    """, unsafe_allow_html=True)
+
+    # =========================
+    # 📦 GEO DATAFRAME
+    # =========================
+    try:
+
+        gdf = criar_geodataframe(df_filtrado)
+
+    except Exception as e:
+
+        gdf = None
+
+        st.error(f"Erro ao criar GeoDataFrame: {str(e)}")
+
+    # =========================
+    # 🎛️ BOTÕES
+    # =========================
+    col1, col2 = st.columns(2)
+
+    # =========================
+    # 📄 FORMATOS TABULARES
+    # =========================
     with col1:
+
+        st.markdown("### 📄 Formatos Tabulares")
+
+        # CSV
+        csv_data = exportar_csv(df_filtrado)
+
         st.download_button(
-            label="📥 Baixar Excel",
-            data=gerar_excel(),
+            label="⬇️ Baixar CSV",
+            data=csv_data,
+            file_name=f"queimadas_{municipio_sel}_{ano_sel}.csv",
+            mime="text/csv",
+            width="stretch",
+            help="Compatível com Excel e LibreOffice"
+        )
+
+        # EXCEL
+        def gerar_excel():
+
+            output = BytesIO()
+
+            with pd.ExcelWriter(
+                output,
+                engine="openpyxl"
+            ) as writer:
+
+                df_filtrado.to_excel(
+                    writer,
+                    sheet_name="Dados",
+                    index=False
+                )
+
+                ranking.to_excel(
+                    writer,
+                    sheet_name="Ranking",
+                    index=False
+                )
+
+            return output.getvalue()
+
+        excel_data = gerar_excel()
+
+        st.download_button(
+            label="⬇️ Baixar Excel",
+            data=excel_data,
             file_name=f"queimadas_{municipio_sel}_{ano_sel}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            width="stretch"
+            width="stretch",
+            help="Planilha Excel completa"
         )
-    with col2:
-        st.caption(f"📊 {len(df_filtrado):,} registros | Última atualização: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
 
+    # =========================
+    # 🗺️ FORMATOS SIG
+    # =========================
+    with col2:
+
+        st.markdown("### 🗺️ Formatos SIG")
+
+        if gdf is not None and not gdf.empty:
+
+            # =====================
+            # 🔥 CORRIGE DATETIME
+            # =====================
+            gdf_export = gdf.copy()
+
+            for col in gdf_export.columns:
+
+                if str(gdf_export[col].dtype).startswith("datetime"):
+
+                    gdf_export[col] = gdf_export[col].astype(str)
+
+            # =====================
+            # 🌍 GEOJSON
+            # =====================
+            try:
+
+                geojson_data = exportar_geojson(gdf_export)
+
+                st.download_button(
+                    label="⬇️ Baixar GeoJSON",
+                    data=geojson_data,
+                    file_name=f"queimadas_{municipio_sel}_{ano_sel}.geojson",
+                    mime="application/geo+json",
+                    width="stretch",
+                    help="Ideal para mapas web e QGIS"
+                )
+
+            except Exception as e:
+
+                st.error(f"Erro GeoJSON: {str(e)}")
+
+            # =====================
+            # 🗺️ SHAPEFILE
+            # =====================
+            try:
+
+                shp_zip_data = exportar_shapefile_zip(gdf_export)
+
+                st.download_button(
+                    label="⬇️ Baixar Shapefile",
+                    data=shp_zip_data,
+                    file_name=f"queimadas_{municipio_sel}_{ano_sel}.zip",
+                    mime="application/zip",
+                    width="stretch",
+                    help="Compatível com QGIS e ArcGIS"
+                )
+
+            except Exception as e:
+
+                st.error(f"Erro Shapefile: {str(e)}")
+
+        else:
+
+            st.warning(
+                "Nenhum dado geoespacial válido encontrado."
+            )
 # =========================
 # 🦶 FOOTER
 # =========================
