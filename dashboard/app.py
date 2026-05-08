@@ -261,62 +261,92 @@ div[role="listbox"]::-webkit-scrollbar-thumb:hover {
    BOTÕES
 ========================================= */
 
-.stButton > button,
-.stDownloadButton > button {
-
-    border: none !important;
-
-    border-radius: var(--radius-sm) !important;
-
-    color: white !important;
-
-    font-weight: 600 !important;
-
-    transition: all 0.2s ease !important;
-}
-
-/* Botão normal */
+/* BOTÃO NORMAL */
 
 .stButton > button {
 
     background: linear-gradient(
         135deg,
-        var(--primary-color) 0%,
+        #2563eb 0%,
         #7c3aed 100%
     ) !important;
+
+    color: white !important;
+
+    border: none !important;
+
+    border-radius: 10px !important;
+
+    font-weight: 700 !important;
+
+    padding: 0.65rem 1rem !important;
+
+    transition: all 0.2s ease !important;
+
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
 }
 
 .stButton > button:hover {
 
     transform: translateY(-1px);
 
-    box-shadow: var(--shadow-md);
 
     background: linear-gradient(
         135deg,
-        var(--primary-hover) 0%,
+        #1d4ed8 0%,
         #6d28d9 100%
     ) !important;
+
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35) !important;
 }
 
+/* DOWNLOAD BUTTON */
+
 .stDownloadButton > button {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-    color: white !important;
+
+    background: linear-gradient(
+        135deg,
+        #16a34a 0%,
+        #15803d 100%
+    ) !important;
+
+    color: #ffffff !important;
+
     border: none !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    padding: 0.5rem 1rem !important;
+
+    border-radius: 10px !important;
+
+    font-weight: 700 !important;
+
+    padding: 0.65rem 1rem !important;
+
     transition: all 0.2s ease !important;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
+
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25) !important;
 }
 
 .stDownloadButton > button:hover {
-    background: linear-gradient(135deg, #34d399 0%, #047857 100%) !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3) !important;
+
+    background: linear-gradient(
+        135deg,
+        #22c55e 0%,
+        #166534 100%
+    ) !important;
+
     color: white !important;
+
+    transform: translateY(-1px) !important;
+
+    box-shadow: 0 6px 16px rgba(22, 163, 74, 0.35) !important;
 }
 
+.stDownloadButton > button:active {
+
+    transform: scale(0.98);
+
+    background: #166534 !important;
+}
+            
 /* =========================================
    CARDS
 ========================================= */
