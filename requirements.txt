@@ -7,7 +7,5 @@ reportlab
 folium
 streamlit-folium
 openpyxl
-geopandas
-shapely
-fiona
-pyogrio
+# geopandas, shapely, fiona, pyogrio - opcionais para exportação geoespacial
+# (instalar manualmente se necessário: conda install geopandas)

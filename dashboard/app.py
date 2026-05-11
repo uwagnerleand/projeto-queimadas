@@ -11,13 +11,18 @@ import io
 from datetime import datetime
 
 # =========================
-# 📦 IMPORTS PARA EXPORTAÇÃO GEOESPACIAL
+# 📦 IMPORTS PARA EXPORTAÇÃO GEOESPACIAL (OPCIONAIS)
 # =========================
-# NOTA: Instale as dependências com:
-# pip install geopandas shapely fiona pyogrio
-# Ou no Windows: conda install geopandas
-import geopandas as gpd
-from shapely.geometry import Point
+# NOTA: Caso não esteja disponível, as funcionalidades geoespaciais
+# serão desabilitadas. Para instalar: conda install geopandas
+try:
+    import geopandas as gpd
+    from shapely.geometry import Point
+    GEOESPACIAL_DISPONIVEL = True
+except (ImportError, OSError):
+    gpd = None
+    Point = None
+    GEOESPACIAL_DISPONIVEL = False
 import tempfile
 import shutil
 
@@ -517,14 +522,14 @@ def preparar_exportacao(df):
     Normaliza colunas de exportação convertendo datetimes para string.
     Preserva a coluna geometry se for um GeoDataFrame.
     """
-    if isinstance(df, gpd.GeoDataFrame):
+    if GEOESPACIAL_DISPONIVEL and isinstance(df, gpd.GeoDataFrame):
         df_export = df.copy()
     else:
         df_export = df.copy()
 
     # Evitar processamento da coluna geometry
     geometry_col = None
-    if isinstance(df_export, gpd.GeoDataFrame):
+    if GEOESPACIAL_DISPONIVEL and isinstance(df_export, gpd.GeoDataFrame):
         geometry_col = df_export.geometry.name
 
     datetime_cols = [
@@ -552,7 +557,14 @@ def preparar_exportacao(df):
 def criar_geodataframe(df):
     """
     Cria um GeoDataFrame a partir de um DataFrame com latitude e longitude.
+    Requer geopandas e shapely instalados.
     """
+    if not GEOESPACIAL_DISPONIVEL:
+        raise ValueError(
+            "Pacotes geoespaciais não disponíveis. "
+            "Instale com: conda install geopandas"
+        )
+
     df_geo = preparar_exportacao(df)
 
     # Verificar se as colunas existem
