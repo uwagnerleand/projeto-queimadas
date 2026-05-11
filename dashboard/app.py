@@ -1180,15 +1180,14 @@ with tab4:
     # =========================
     # 📦 GEO DATAFRAME
     # =========================
-    try:
-
-        gdf = criar_geodataframe(df_filtrado)
-
-    except Exception as e:
-
+    if GEOESPACIAL_DISPONIVEL:
+        try:
+            gdf = criar_geodataframe(df_filtrado)
+        except Exception as e:
+            gdf = None
+            st.warning(f"⚠️ Exportação SIG indisponível: {str(e)}")
+    else:
         gdf = None
-
-        st.error(f"Erro ao criar GeoDataFrame: {str(e)}")
 
     # =========================
     # 🎛️ BOTÕES
@@ -1256,7 +1255,16 @@ with tab4:
 
         st.markdown("### 🗺️ Formatos SIG")
 
-        if gdf is not None and not gdf.empty:
+        if not GEOESPACIAL_DISPONIVEL:
+
+            st.info(
+                "💡 Exportação para formatos SIG (GeoJSON, Shapefile) requer "
+                "geopandas instalado. No Streamlit Cloud, isso não está "
+                "disponível por padrão.\n\n"
+                "ℹ️ Utilize os formatos tabulares (CSV/Excel) como alternativa."
+            )
+
+        elif gdf is not None and not gdf.empty:
 
             # =====================
             # 🔥 CORRIGE DATETIME
@@ -1312,7 +1320,7 @@ with tab4:
         else:
 
             st.warning(
-                "Nenhum dado geoespacial válido encontrado."
+                "Nenhum dado geoespacial válido encontrado para exportação."
             )
 # =========================
 # 🦶 FOOTER
