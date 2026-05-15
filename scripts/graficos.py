@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import os
 import seaborn as sns
@@ -119,11 +120,13 @@ if not df_obidos.empty:
         )
 
         variacao = serie.pct_change() * 100
+        variacao = variacao.replace([np.inf, -np.inf], 0).fillna(0)
 
         plt.figure(figsize=(10,5))
         plt.plot(serie.index, variacao, marker="o")
+        plt.xticks(range(1,13), ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"])
 
-        plt.axhline(0)
+        plt.axhline(0, color="gray", linewidth=1, linestyle="--")
         plt.title(f"Variação percentual - Óbidos ({ano})")
         plt.xlabel("Mês")
         plt.ylabel("%")
