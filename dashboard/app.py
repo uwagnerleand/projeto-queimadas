@@ -908,12 +908,19 @@ with tab1:
             1:"Jan", 2:"Fev", 3:"Mar", 4:"Abr", 5:"Mai", 6:"Jun",
             7:"Jul", 8:"Ago", 9:"Set", 10:"Out", 11:"Nov", 12:"Dez"
         }
-        
+
+        meses_completos = pd.DataFrame({"mes": list(range(1, 13))})
+        grafico = meses_completos.merge(grafico, on="mes", how="left").fillna({"focos": 0})
         grafico["mes_nome"] = grafico["mes"].map(meses)
         
         # Cores baseadas na intensidade
         max_focos = grafico["focos"].max()
-        grafico["cor"] = grafico["focos"].apply(lambda x: f"rgb({int(37 + (x/max_focos)*183)}, {int(99 + (x/max_focos)*66)}, {int(235 + (x/max_focos)*10)})")
+        if max_focos == 0:
+            grafico["cor"] = "rgb(37, 99, 235)"
+        else:
+            grafico["cor"] = grafico["focos"].apply(
+                lambda x: f"rgb({int(37 + (x/max_focos)*183)}, {int(99 + (x/max_focos)*66)}, {int(235 + (x/max_focos)*10)})"
+            )
         
         chart = alt.Chart(grafico).mark_bar(
             cornerRadius=8,
@@ -958,12 +965,17 @@ with tab1:
     </div>
     """, unsafe_allow_html=True)
 
-    df_evolucao = df[
-        (df["estado"] == estado_sel) &
-        (df["municipio"] == municipio_sel)
-    ]
-
+    df_evolucao = df_filtrado.copy()
     serie = df_evolucao.groupby(["ano", "mes"]).size().reset_index(name="focos")
+
+    if not serie.empty:
+        meses_completos = pd.DataFrame({"mes": list(range(1, 13))})
+        serie = (
+            meses_completos
+            .merge(serie, on="mes", how="left")
+            .fillna({"focos": 0})
+            .assign(ano=ano_sel)
+        )
 
     if not serie.empty:
         serie["data"] = pd.to_datetime(
@@ -1066,6 +1078,9 @@ with tab3:
     if not top10.empty:
         # Adicionar posição
         top10["posicao"] = range(1, len(top10) + 1)
+        top10["municipio_label"] = top10.apply(
+            lambda row: f"{int(row['posicao'])}º - {row['municipio']}", axis=1
+        )
         
         # Cores baseadas na posição
         def get_color(pos):
@@ -1083,7 +1098,7 @@ with tab3:
             x=alt.X("focos:Q", 
                     title="Número de Focos",
                     axis=alt.Axis(labelFontSize=12, titleFontSize=14, labelColor="#374151", titleColor="#1f2937")),
-            y=alt.Y("municipio:N", 
+            y=alt.Y("municipio_label:N", 
                     sort="-x",
                     title="",
                     axis=alt.Axis(labelFontSize=11, labelFontWeight=600, labelColor="#374151")),
