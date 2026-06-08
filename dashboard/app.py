@@ -291,20 +291,6 @@ div[role="listbox"]::-webkit-scrollbar-thumb:hover {
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
 }
 
-.stButton > button:hover {
-
-    transform: translateY(-1px);
-
-
-    background: linear-gradient(
-        135deg,
-        #1d4ed8 0%,
-        #6d28d9 100%
-    ) !important;
-
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35) !important;
-}
-
 /* DOWNLOAD BUTTON */
 
 .stDownloadButton > button {
@@ -330,26 +316,114 @@ div[role="listbox"]::-webkit-scrollbar-thumb:hover {
     box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25) !important;
 }
 
-.stDownloadButton > button:hover {
-
-    background: linear-gradient(
-        135deg,
-        #22c55e 0%,
-        #166534 100%
-    ) !important;
-
-    color: white !important;
-
-    transform: translateY(-1px) !important;
-
-    box-shadow: 0 6px 16px rgba(22, 163, 74, 0.35) !important;
-}
-
 .stDownloadButton > button:active {
 
     transform: scale(0.98);
 
     background: #166534 !important;
+}
+
+/* Garantir texto branco e ícones visíveis nos botões de download */
+.stDownloadButton > button span {
+    color: #ffffff !important;
+}
+
+.stDownloadButton > button svg {
+    fill: #ffffff !important;
+    stroke: #ffffff !important;
+    color: #ffffff !important;
+}
+
+.stDownloadButton > button:hover span {
+    color: #ffffff !important;
+}
+
+.stDownloadButton > button:active span {
+    color: #ffffff !important;
+}
+
+/* Aplicar texto branco diretamente no botão de download */
+.stDownloadButton button {
+    color: #ffffff !important;
+}
+
+.stDownloadButton button span {
+    color: #ffffff !important;
+}
+
+.stDownloadButton button p,
+.stDownloadButton button p span {
+    color: #ffffff !important;
+}
+
+/* =========================================
+   BOTÃO NORMAL - Garantir texto branco
+========================================= */
+
+.stButton > button span {
+    color: #ffffff !important;
+}
+
+.stButton > button svg {
+    fill: #ffffff !important;
+    stroke: #ffffff !important;
+    color: #ffffff !important;
+}
+
+.stButton > button:hover span {
+    color: #ffffff !important;
+}
+
+.stButton > button:active span {
+    color: #ffffff !important;
+}
+
+/* Aplicar texto branco diretamente no botão normal */
+.stButton button {
+    color: #ffffff !important;
+}
+
+.stButton button span {
+    color: #ffffff !important;
+}
+
+.stButton button p,
+.stButton button p span {
+    color: #ffffff !important;
+}
+
+/* Estados de foco e acessibilidade para botões */
+.stDownloadButton > button:focus {
+    outline: 3px solid #fbbf24 !important;
+    outline-offset: 2px !important;
+}
+
+.stButton > button:focus {
+    outline: 3px solid #fbbf24 !important;
+    outline-offset: 2px !important;
+}
+
+/* Melhorar contraste e brilho no hover dos botões de download */
+.stDownloadButton > button:hover {
+    background: linear-gradient(
+        135deg,
+        #22c55e 0%,
+        #16a34a 100%
+    ) !important;
+    color: white !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4) !important;
+}
+
+/* Melhorar contraste e brilho no hover dos botões normais */
+.stButton > button:hover {
+    background: linear-gradient(
+        135deg,
+        #3b82f6 0%,
+        #8b5cf6 100%
+    ) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4) !important;
 }
             
 /* =========================================
