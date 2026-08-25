@@ -36,13 +36,15 @@ def test_calcular_series_temporais(dados_tratados_exemplo):
 
 
 def test_identificar_eventos_extremos():
-    serie = pd.DataFrame({
-        "ano": [2024, 2024, 2024, 2024],
-        "mes": [1, 2, 3, 4],
-        "focos": [10, 20, 10, 50],
-        "variacao_%": [0.0, 100.0, -50.0, 400.0]
-    })
+    serie = pd.DataFrame(
+        {
+            "ano": [2024, 2024, 2024, 2024],
+            "mes": [1, 2, 3, 4],
+            "focos": [10, 20, 10, 50],
+            "variacao_%": [0.0, 100.0, -50.0, 400.0],
+        }
+    )
     aumento, queda = identificar_eventos_extremos(serie, limiar_percentual=30.0)
 
     assert len(aumento) == 2  # meses 2 e 4
-    assert len(queda) == 1   # mês 3
+    assert len(queda) == 1  # mês 3

@@ -21,7 +21,7 @@ import pandas as pd
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    datefmt="%H:%M:%S"
+    datefmt="%H:%M:%S",
 )
 logger = logging.getLogger("queimadas.tratamento")
 
@@ -95,10 +95,7 @@ def carregar_arquivos_brutos(padrao_busca: str = "dados/bruto/queimadas_*.csv") 
     return df_consolidado
 
 
-def tratar_dataframe(
-    df: pd.DataFrame,
-    remover_coordenadas_invalidas: bool = True
-) -> pd.DataFrame:
+def tratar_dataframe(df: pd.DataFrame, remover_coordenadas_invalidas: bool = True) -> pd.DataFrame:
     """Executa o pipeline completo de limpeza e padronização no DataFrame.
 
     Args:
@@ -133,7 +130,11 @@ def tratar_dataframe(
         df_clean["bioma"] = df_clean["bioma"].apply(normalizar_texto)
 
     # Validação de Coordenadas Geográficas
-    if remover_coordenadas_invalidas and "latitude" in df_clean.columns and "longitude" in df_clean.columns:
+    if (
+        remover_coordenadas_invalidas
+        and "latitude" in df_clean.columns
+        and "longitude" in df_clean.columns
+    ):
         df_clean["latitude"] = pd.to_numeric(df_clean["latitude"], errors="coerce")
         df_clean["longitude"] = pd.to_numeric(df_clean["longitude"], errors="coerce")
 
@@ -151,7 +152,7 @@ def processar_e_salvar(
     origem_padrao: str = "dados/bruto/queimadas_*.csv",
     destino_dir: str = "dados/tratado",
     estado_foco: str = "PARA",
-    municipio_foco: str = "OBIDOS"
+    municipio_foco: str = "OBIDOS",
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Processa os dados brutos e salva os arquivos tratados para estado e município de foco.
 
@@ -172,12 +173,14 @@ def processar_e_salvar(
     # Subconjuntos
     df_estado = (
         df_tratado[df_tratado["estado"].str.contains(estado_foco, na=False)]
-        if "estado" in df_tratado.columns else pd.DataFrame()
+        if "estado" in df_tratado.columns
+        else pd.DataFrame()
     )
 
     df_municipio = (
         df_tratado[df_tratado["municipio"] == municipio_foco]
-        if "municipio" in df_tratado.columns else pd.DataFrame()
+        if "municipio" in df_tratado.columns
+        else pd.DataFrame()
     )
 
     # Salvar resultados
@@ -190,8 +193,14 @@ def processar_e_salvar(
     df_municipio.to_csv(caminho_municipio, index=False, encoding="utf-8")
 
     logger.info("Tratamento concluído com sucesso!")
-    logger.info("Total geral: %d | Total %s: %d | Total %s: %d",
-                len(df_tratado), estado_foco, len(df_estado), municipio_foco, len(df_municipio))
+    logger.info(
+        "Total geral: %d | Total %s: %d | Total %s: %d",
+        len(df_tratado),
+        estado_foco,
+        len(df_estado),
+        municipio_foco,
+        len(df_municipio),
+    )
 
     return df_tratado, df_estado, df_municipio
 
@@ -205,25 +214,22 @@ def parse_args() -> argparse.Namespace:
         "--origem",
         type=str,
         default="dados/bruto/queimadas_*.csv",
-        help="Padrão glob para os arquivos de entrada (padrão: dados/bruto/queimadas_*.csv)."
+        help="Padrão glob para os arquivos de entrada (padrão: dados/bruto/queimadas_*.csv).",
     )
     parser.add_argument(
         "--destino",
         type=str,
         default="dados/tratado",
-        help="Diretório de saída para os arquivos tratados (padrão: dados/tratado)."
+        help="Diretório de saída para os arquivos tratados (padrão: dados/tratado).",
     )
     parser.add_argument(
-        "--estado",
-        type=str,
-        default="PARA",
-        help="Estado de foco para filtragem (padrão: PARA)."
+        "--estado", type=str, default="PARA", help="Estado de foco para filtragem (padrão: PARA)."
     )
     parser.add_argument(
         "--municipio",
         type=str,
         default="OBIDOS",
-        help="Município de foco para filtragem (padrão: OBIDOS)."
+        help="Município de foco para filtragem (padrão: OBIDOS).",
     )
     return parser.parse_args()
 
@@ -236,7 +242,7 @@ def main() -> None:
             origem_padrao=args.origem,
             destino_dir=args.destino,
             estado_foco=normalizar_texto(args.estado),
-            municipio_foco=normalizar_texto(args.municipio)
+            municipio_foco=normalizar_texto(args.municipio),
         )
     except Exception as exc:
         logger.error("Erro durante o tratamento de dados: %s", exc)

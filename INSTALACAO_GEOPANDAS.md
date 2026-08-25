@@ -18,6 +18,7 @@ pip install geopandas shapely fiona pyogrio
 ```python
 import geopandas as gpd
 from shapely.geometry import Point
+
 print("GeoPandas instalado com sucesso!")
 ```
 

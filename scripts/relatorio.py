@@ -24,7 +24,7 @@ from reportlab.platypus import Image, PageBreak, Paragraph, SimpleDocTemplate, S
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    datefmt="%H:%M:%S"
+    datefmt="%H:%M:%S",
 )
 logger = logging.getLogger("queimadas.relatorio")
 
@@ -35,13 +35,7 @@ def adicionar_fundo_e_paginacao(canvas, doc, logo_path: Optional[str] = None) ->
 
     if logo_path and os.path.exists(logo_path):
         try:
-            canvas.drawImage(
-                logo_path,
-                0, 0,
-                width=width,
-                height=height,
-                mask="auto"
-            )
+            canvas.drawImage(logo_path, 0, 0, width=width, height=height, mask="auto")
         except Exception as err:
             logger.warning("Não foi possível renderizar imagem de fundo: %s", err)
 
@@ -59,7 +53,7 @@ def gerar_relatorio_pdf(
     municipio: str = "OBIDOS",
     estado: str = "PARA",
     orgao_emissor: str = "Secretaria Municipal de Meio Ambiente",
-    logo_path: str = "assets/logo.png"
+    logo_path: str = "assets/logo.png",
 ) -> str:
     """Compila dados e imagens geradas em um relatório técnico oficial em PDF.
 
@@ -116,7 +110,7 @@ def gerar_relatorio_pdf(
         topMargin=120,
         bottomMargin=80,
         leftMargin=50,
-        rightMargin=50
+        rightMargin=50,
     )
 
     styles = getSampleStyleSheet()
@@ -127,7 +121,7 @@ def gerar_relatorio_pdf(
         leading=24,
         textColor=colors.HexColor("#0f172a"),
         alignment=1,
-        fontName="Helvetica-Bold"
+        fontName="Helvetica-Bold",
     )
     heading_style = ParagraphStyle(
         "CustomHeading",
@@ -137,7 +131,7 @@ def gerar_relatorio_pdf(
         textColor=colors.HexColor("#1e3a8a"),
         spaceBefore=12,
         spaceAfter=6,
-        fontName="Helvetica-Bold"
+        fontName="Helvetica-Bold",
     )
     body_style = ParagraphStyle(
         "CustomBody",
@@ -146,7 +140,7 @@ def gerar_relatorio_pdf(
         leading=14,
         textColor=colors.HexColor("#1e293b"),
         spaceBefore=4,
-        spaceAfter=6
+        spaceAfter=6,
     )
 
     conteudo: List[object] = []
@@ -155,7 +149,9 @@ def gerar_relatorio_pdf(
     conteudo.append(Spacer(1, 100))
     conteudo.append(Paragraph(f"PREFEITURA MUNICIPAL DE {municipio.upper()}", title_style))
     conteudo.append(Spacer(1, 10))
-    conteudo.append(Paragraph(orgao_emissor, ParagraphStyle("Sub", parent=body_style, alignment=1, fontSize=12)))
+    conteudo.append(
+        Paragraph(orgao_emissor, ParagraphStyle("Sub", parent=body_style, alignment=1, fontSize=12))
+    )
     conteudo.append(Spacer(1, 30))
 
     conteudo.append(Paragraph("RELATÓRIO TÉCNICO DE MONITORAMENTO DE QUEIMADAS", heading_style))
@@ -167,46 +163,58 @@ def gerar_relatorio_pdf(
 
     # 2. Introdução
     conteudo.append(Paragraph("1. INTRODUÇÃO E CONTEXTUALIZAÇÃO", heading_style))
-    conteudo.append(Paragraph(
-        f"Este documento técnico consolida os dados de monitoramento de focos de calor e queimadas "
-        f"para o município de {municipio.title()} ({estado.upper()}), integrando dados satelitais "
-        f"fornecidos pelo Instituto Nacional de Pesquisas Espaciais (INPE). O propósito é subsidiar a "
-        f"gestão ambiental, a fiscalização preventiva e a elaboração de políticas públicas sustentáveis.",
-        body_style
-    ))
+    conteudo.append(
+        Paragraph(
+            f"Este documento técnico consolida os dados de monitoramento de focos de calor e queimadas "
+            f"para o município de {municipio.title()} ({estado.upper()}), integrando dados satelitais "
+            f"fornecidos pelo Instituto Nacional de Pesquisas Espaciais (INPE). O propósito é subsidiar a "
+            f"gestão ambiental, a fiscalização preventiva e a elaboração de políticas públicas sustentáveis.",
+            body_style,
+        )
+    )
     conteudo.append(Spacer(1, 15))
 
     # 3. Resultados Gerais
     conteudo.append(Paragraph("2. DIAGNÓSTICO E RESULTADOS ESTATÍSTICOS", heading_style))
-    conteudo.append(Paragraph(
-        f"No consolidado estadual, o município com maior incidência de focos foi "
-        f"<b>{top1['municipio'].title()}</b>, com um total de <b>{int(top1['focos']):,}</b> focos detectados.",
-        body_style
-    ))
-    conteudo.append(Paragraph(
-        f"O município de <b>{municipio.title()}</b> registrou <b>{focos_mun:,}</b> focos no período analisado, "
-        f"ocupando a posição <b>#{pos_municipio}</b> no ranking de focos do estado do {estado.title()}.",
-        body_style
-    ))
-    conteudo.append(Paragraph(
-        f"A participação relativa de {municipio.title()} equivale a <b>{percentual:.2f}%</b> "
-        f"do total de focos observados em todo o território estadual.",
-        body_style
-    ))
+    conteudo.append(
+        Paragraph(
+            f"No consolidado estadual, o município com maior incidência de focos foi "
+            f"<b>{top1['municipio'].title()}</b>, com um total de <b>{int(top1['focos']):,}</b> focos detectados.",
+            body_style,
+        )
+    )
+    conteudo.append(
+        Paragraph(
+            f"O município de <b>{municipio.title()}</b> registrou <b>{focos_mun:,}</b> focos no período analisado, "
+            f"ocupando a posição <b>#{pos_municipio}</b> no ranking de focos do estado do {estado.title()}.",
+            body_style,
+        )
+    )
+    conteudo.append(
+        Paragraph(
+            f"A participação relativa de {municipio.title()} equivale a <b>{percentual:.2f}%</b> "
+            f"do total de focos observados em todo o território estadual.",
+            body_style,
+        )
+    )
     conteudo.append(Spacer(1, 15))
 
     # 4. Tendência Temporal
     conteudo.append(Paragraph("3. SÉRIE HISTÓRICA E TENDÊNCIA TEMPORAL", heading_style))
-    conteudo.append(Paragraph(
-        f"A análise da série temporal recente aponta uma tendência de <b>{tendencia}</b> no volume de focos. "
-        f"Abaixo estão discriminados os totais anuais computados:",
-        body_style
-    ))
+    conteudo.append(
+        Paragraph(
+            f"A análise da série temporal recente aponta uma tendência de <b>{tendencia}</b> no volume de focos. "
+            f"Abaixo estão discriminados os totais anuais computados:",
+            body_style,
+        )
+    )
     for _, row in anual.iterrows():
-        conteudo.append(Paragraph(
-            f"• <b>Ano {int(row['ano'])}:</b> {int(row['focos']):,} focos registrados.",
-            body_style
-        ))
+        conteudo.append(
+            Paragraph(
+                f"• <b>Ano {int(row['ano'])}:</b> {int(row['focos']):,} focos registrados.",
+                body_style,
+            )
+        )
     conteudo.append(Spacer(1, 15))
 
     def adicionar_figura(nome_arquivo: str, legenda: str) -> None:
@@ -221,9 +229,14 @@ def gerar_relatorio_pdf(
 
     # 5. Visualizações Gráficas
     conteudo.append(Paragraph("4. PAINEL DE VISUALIZAÇÕES TÉCNICAS", heading_style))
-    adicionar_figura(f"{municipio.lower()}_evolucao.png", "Figura 1 – Evolução temporal geral de focos em Óbidos.")
+    adicionar_figura(
+        f"{municipio.lower()}_evolucao.png",
+        "Figura 1 – Evolução temporal geral de focos em Óbidos.",
+    )
     adicionar_figura(f"{municipio.lower()}_anual.png", "Figura 2 – Distribuição anual comparativa.")
-    adicionar_figura(f"{municipio.lower()}_heatmap.png", "Figura 3 – Mapa de calor sazonal (Mês × Ano).")
+    adicionar_figura(
+        f"{municipio.lower()}_heatmap.png", "Figura 3 – Mapa de calor sazonal (Mês × Ano)."
+    )
 
     conteudo.append(PageBreak())
 
@@ -232,27 +245,47 @@ def gerar_relatorio_pdf(
         anos = sorted(anual["ano"].unique())
         for ano in anos:
             conteudo.append(Paragraph(f"Detalhamento do Ano {int(ano)}", heading_style))
-            adicionar_figura(f"{municipio.lower()}_mensal_{int(ano)}.png", f"Distribuição mensal em {int(ano)}.")
+            adicionar_figura(
+                f"{municipio.lower()}_mensal_{int(ano)}.png", f"Distribuição mensal em {int(ano)}."
+            )
             adicionar_figura(f"top10_{int(ano)}.png", f"Top 10 municípios do estado em {int(ano)}.")
-            adicionar_figura(f"comparacao_{int(ano)}.png", f"Comparação de evolução municipal em {int(ano)}.")
+            adicionar_figura(
+                f"comparacao_{int(ano)}.png", f"Comparação de evolução municipal em {int(ano)}."
+            )
             conteudo.append(PageBreak())
 
     # 6. Conclusões e Recomendações
     conteudo.append(Paragraph("5. CONCLUSÕES E RECOMENDAÇÕES", heading_style))
-    conteudo.append(Paragraph(
-        f"A análise espacial e temporal confirma a ocorrência de picos sazonais críticos "
-        f"no município de {municipio.title()}. Recomenda-se:",
-        body_style
-    ))
-    conteudo.append(Paragraph("a) Intensificação de patrulhamento e brigadas nos meses de estiagem;", body_style))
-    conteudo.append(Paragraph("b) Integração de dados em tempo real com Defesa Civil e órgãos fiscalizadores;", body_style))
-    conteudo.append(Paragraph("c) Campanhas de conscientização e alternativas ao uso do fogo na agricultura familiar.", body_style))
+    conteudo.append(
+        Paragraph(
+            f"A análise espacial e temporal confirma a ocorrência de picos sazonais críticos "
+            f"no município de {municipio.title()}. Recomenda-se:",
+            body_style,
+        )
+    )
+    conteudo.append(
+        Paragraph(
+            "a) Intensificação de patrulhamento e brigadas nos meses de estiagem;", body_style
+        )
+    )
+    conteudo.append(
+        Paragraph(
+            "b) Integração de dados em tempo real com Defesa Civil e órgãos fiscalizadores;",
+            body_style,
+        )
+    )
+    conteudo.append(
+        Paragraph(
+            "c) Campanhas de conscientização e alternativas ao uso do fogo na agricultura familiar.",
+            body_style,
+        )
+    )
 
     # Construir PDF
     doc.build(
         conteudo,
         onFirstPage=lambda c, d: adicionar_fundo_e_paginacao(c, d, logo_path),
-        onLaterPages=lambda c, d: adicionar_fundo_e_paginacao(c, d, logo_path)
+        onLaterPages=lambda c, d: adicionar_fundo_e_paginacao(c, d, logo_path),
     )
 
     logger.info("Relatório PDF oficial gerado com sucesso: %s", caminho_saida_pdf)
@@ -261,11 +294,25 @@ def gerar_relatorio_pdf(
 
 def parse_args() -> argparse.Namespace:
     """Configura argumentos de linha de comando."""
-    parser = argparse.ArgumentParser(description="Gera relatório técnico em PDF de monitoramento de queimadas.")
-    parser.add_argument("--ranking", default="outputs/analise/ranking_municipios.csv", help="Caminho do CSV de ranking.")
-    parser.add_argument("--anual", default="outputs/analise/anual_obidos.csv", help="Caminho do CSV anual.")
-    parser.add_argument("--graficos-dir", default="outputs/graficos", help="Pasta com os gráficos PNG.")
-    parser.add_argument("--saida-pdf", default="outputs/relatorios/relatorio_oficial_obidos.pdf", help="Caminho do PDF de saída.")
+    parser = argparse.ArgumentParser(
+        description="Gera relatório técnico em PDF de monitoramento de queimadas."
+    )
+    parser.add_argument(
+        "--ranking",
+        default="outputs/analise/ranking_municipios.csv",
+        help="Caminho do CSV de ranking.",
+    )
+    parser.add_argument(
+        "--anual", default="outputs/analise/anual_obidos.csv", help="Caminho do CSV anual."
+    )
+    parser.add_argument(
+        "--graficos-dir", default="outputs/graficos", help="Pasta com os gráficos PNG."
+    )
+    parser.add_argument(
+        "--saida-pdf",
+        default="outputs/relatorios/relatorio_oficial_obidos.pdf",
+        help="Caminho do PDF de saída.",
+    )
     parser.add_argument("--municipio", default="OBIDOS", help="Município em análise.")
     parser.add_argument("--estado", default="PARA", help="Estado em análise.")
     return parser.parse_args()
@@ -281,7 +328,7 @@ def main() -> None:
             diretorio_graficos=args.graficos_dir,
             caminho_saida_pdf=args.saida_pdf,
             municipio=args.municipio,
-            estado=args.estado
+            estado=args.estado,
         )
     except Exception as exc:
         logger.error("Erro ao gerar relatório em PDF: %s", exc)

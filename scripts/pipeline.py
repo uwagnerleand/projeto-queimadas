@@ -27,7 +27,7 @@ from scripts.tratamento import processar_e_salvar
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    datefmt="%H:%M:%S"
+    datefmt="%H:%M:%S",
 )
 logger = logging.getLogger("queimadas.pipeline")
 
@@ -39,7 +39,7 @@ def executar_pipeline(
     municipio: str = "OBIDOS",
     dados_brutos_dir: str = "dados/bruto",
     dados_tratados_dir: str = "dados/tratado",
-    outputs_dir: str = "outputs"
+    outputs_dir: str = "outputs",
 ) -> bool:
     """Executa todas as etapas do pipeline de dados de forma sequencial e controlada.
 
@@ -91,7 +91,7 @@ def executar_pipeline(
                 origem_padrao=padrao_busca,
                 destino_dir=dados_tratados_dir,
                 estado_foco=estado.upper(),
-                municipio_foco=municipio.upper()
+                municipio_foco=municipio.upper(),
             )
         except Exception as err:
             logger.error("Erro durante o tratamento: %s", err)
@@ -107,7 +107,7 @@ def executar_pipeline(
             caminho_entrada=arquivo_tratado,
             diretorio_saida=analise_dir,
             estado_alvo=estado.upper(),
-            municipio_alvo=municipio.upper()
+            municipio_alvo=municipio.upper(),
         )
     except Exception as err:
         logger.error("Erro durante a análise estatística: %s", err)
@@ -121,7 +121,7 @@ def executar_pipeline(
             caminho_csv=arquivo_tratado,
             diretorio_saida=graficos_dir,
             estado=estado.upper(),
-            municipio=municipio.upper()
+            municipio=municipio.upper(),
         )
     except Exception as err:
         logger.error("Erro durante a geração de gráficos: %s", err)
@@ -131,7 +131,9 @@ def executar_pipeline(
     logger.info("\n--- [ETAPA 5/5] Compilação do Relatório Técnico Oficial (PDF) ---")
     ranking_csv = os.path.join(analise_dir, "ranking_municipios.csv")
     anual_csv = os.path.join(analise_dir, f"anual_{municipio.lower()}.csv")
-    relatorio_pdf = os.path.join(outputs_dir, "relatorios", f"relatorio_oficial_{municipio.lower()}.pdf")
+    relatorio_pdf = os.path.join(
+        outputs_dir, "relatorios", f"relatorio_oficial_{municipio.lower()}.pdf"
+    )
     logo_path = os.path.join("assets", "logo.png")
 
     try:
@@ -142,7 +144,7 @@ def executar_pipeline(
             caminho_saida_pdf=relatorio_pdf,
             municipio=municipio.upper(),
             estado=estado.upper(),
-            logo_path=logo_path
+            logo_path=logo_path,
         )
     except Exception as err:
         logger.error("Erro durante a compilação do PDF: %s", err)
@@ -159,11 +161,25 @@ def executar_pipeline(
 
 def parse_args() -> argparse.Namespace:
     """Configura argumentos de linha de comando."""
-    parser = argparse.ArgumentParser(description="Executa o pipeline completo de dados de queimadas.")
-    parser.add_argument("--anos", nargs="+", type=int, default=[2020, 2021, 2022, 2024], help="Lista de anos a processar.")
-    parser.add_argument("--pular-coleta", action="store_true", help="Pula a etapa de download caso já existam dados locais.")
+    parser = argparse.ArgumentParser(
+        description="Executa o pipeline completo de dados de queimadas."
+    )
+    parser.add_argument(
+        "--anos",
+        nargs="+",
+        type=int,
+        default=[2020, 2021, 2022, 2024],
+        help="Lista de anos a processar.",
+    )
+    parser.add_argument(
+        "--pular-coleta",
+        action="store_true",
+        help="Pula a etapa de download caso já existam dados locais.",
+    )
     parser.add_argument("--estado", type=str, default="PARA", help="Estado alvo da análise.")
-    parser.add_argument("--municipio", type=str, default="OBIDOS", help="Município alvo da análise.")
+    parser.add_argument(
+        "--municipio", type=str, default="OBIDOS", help="Município alvo da análise."
+    )
     return parser.parse_args()
 
 
@@ -171,10 +187,7 @@ def main() -> None:
     """Ponto de entrada do script."""
     args = parse_args()
     sucesso = executar_pipeline(
-        anos=args.anos,
-        pular_coleta=args.pular_coleta,
-        estado=args.estado,
-        municipio=args.municipio
+        anos=args.anos, pular_coleta=args.pular_coleta, estado=args.estado, municipio=args.municipio
     )
     if not sucesso:
         sys.exit(1)

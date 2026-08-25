@@ -30,10 +30,9 @@ def main() -> None:
         return
 
     print("🚀 Inicializando o Dashboard Streamlit...")
-    processo = subprocess.Popen([
-        sys.executable, "-m", "streamlit", "run", "dashboard/app.py",
-        "--server.headless=true"
-    ])
+    processo = subprocess.Popen(
+        [sys.executable, "-m", "streamlit", "run", "dashboard/app.py", "--server.headless=true"]
+    )
 
     time.sleep(3)
     webbrowser.open(url)

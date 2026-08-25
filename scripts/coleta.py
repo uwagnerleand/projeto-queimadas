@@ -21,7 +21,7 @@ import requests
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    datefmt="%H:%M:%S"
+    datefmt="%H:%M:%S",
 )
 logger = logging.getLogger("queimadas.coleta")
 
@@ -125,7 +125,9 @@ def carregar_dados_anual_zip(ano: Union[int, str], timeout: int = 60) -> pd.Data
 
         csv_candidatos = [f for f in arquivos if f.lower().endswith(".csv")]
         if not csv_candidatos:
-            raise FileNotFoundError(f"Nenhum arquivo CSV encontrado dentro do ZIP para o ano {ano_str}.")
+            raise FileNotFoundError(
+                f"Nenhum arquivo CSV encontrado dentro do ZIP para o ano {ano_str}."
+            )
 
         nome_csv = csv_candidatos[0]
         logger.info("Extraindo e processando arquivo: %s", nome_csv)
@@ -157,9 +159,7 @@ def carregar_dados_anual_zip(ano: Union[int, str], timeout: int = 60) -> pd.Data
 
 
 def salvar_dataframe(
-    df: pd.DataFrame,
-    nome_arquivo: str,
-    diretorio_destino: Optional[str] = None
+    df: pd.DataFrame, nome_arquivo: str, diretorio_destino: Optional[str] = None
 ) -> str:
     """Salva o DataFrame em formato CSV no diretório especificado.
 
@@ -197,25 +197,16 @@ def parse_args() -> argparse.Namespace:
         "--fonte",
         choices=["inpe", "ibge"],
         default=None,
-        help="Fonte dos dados: 'inpe' para servidor do INPE ou 'ibge' para API JSON."
+        help="Fonte dos dados: 'inpe' para servidor do INPE ou 'ibge' para API JSON.",
     )
     parser.add_argument(
-        "--ano",
-        type=str,
-        default=None,
-        help="Ano de referência para download do INPE (ex: 2024)."
+        "--ano", type=str, default=None, help="Ano de referência para download do INPE (ex: 2024)."
     )
     parser.add_argument(
-        "--url",
-        type=str,
-        default=None,
-        help="URL da API JSON (quando --fonte for ibge)."
+        "--url", type=str, default=None, help="URL da API JSON (quando --fonte for ibge)."
     )
     parser.add_argument(
-        "--saida",
-        type=str,
-        default=None,
-        help="Nome personalizado para o arquivo de saída."
+        "--saida", type=str, default=None, help="Nome personalizado para o arquivo de saída."
     )
     return parser.parse_args()
 
@@ -230,7 +221,10 @@ def main() -> None:
             fonte = "inpe"
             ano = args.ano or "2024"
         else:
-            fonte = input("Escolha a fonte de dados [inpe/ibge] (padrão: inpe): ").strip().lower() or "inpe"
+            fonte = (
+                input("Escolha a fonte de dados [inpe/ibge] (padrão: inpe): ").strip().lower()
+                or "inpe"
+            )
 
     if fonte == "ibge":
         url = args.url

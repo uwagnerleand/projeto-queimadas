@@ -19,12 +19,14 @@ import pandas as pd
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    datefmt="%H:%M:%S"
+    datefmt="%H:%M:%S",
 )
 logger = logging.getLogger("queimadas.analise")
 
 
-def carregar_dados_tratados(caminho_csv: str = "dados/tratado/queimadas_tratado.csv") -> pd.DataFrame:
+def carregar_dados_tratados(
+    caminho_csv: str = "dados/tratado/queimadas_tratado.csv",
+) -> pd.DataFrame:
     """Carrega o arquivo CSV tratado e valida os tipos temporais.
 
     Args:
@@ -66,10 +68,7 @@ def calcular_ranking_municipios(df_estado: pd.DataFrame) -> pd.DataFrame:
         return pd.DataFrame(columns=["municipio", "focos"])
 
     ranking = (
-        df_estado.groupby("municipio")
-        .size()
-        .sort_values(ascending=False)
-        .reset_index(name="focos")
+        df_estado.groupby("municipio").size().sort_values(ascending=False).reset_index(name="focos")
     )
     return ranking
 
@@ -84,28 +83,21 @@ def calcular_series_temporais(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFr
         Tupla contendo (serie_mensal, serie_anual).
     """
     if df.empty:
-        return pd.DataFrame(columns=["ano", "mes", "focos", "variacao_%"]), pd.DataFrame(columns=["ano", "focos"])
+        return pd.DataFrame(columns=["ano", "mes", "focos", "variacao_%"]), pd.DataFrame(
+            columns=["ano", "focos"]
+        )
 
     serie_mensal = (
-        df.groupby(["ano", "mes"])
-        .size()
-        .reset_index(name="focos")
-        .sort_values(["ano", "mes"])
+        df.groupby(["ano", "mes"]).size().reset_index(name="focos").sort_values(["ano", "mes"])
     )
     serie_mensal["variacao_%"] = serie_mensal["focos"].pct_change() * 100
 
-    serie_anual = (
-        df.groupby("ano")
-        .size()
-        .reset_index(name="focos")
-        .sort_values("ano")
-    )
+    serie_anual = df.groupby("ano").size().reset_index(name="focos").sort_values("ano")
     return serie_mensal, serie_anual
 
 
 def identificar_eventos_extremos(
-    serie_mensal: pd.DataFrame,
-    limiar_percentual: float = 30.0
+    serie_mensal: pd.DataFrame, limiar_percentual: float = 30.0
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Identifica períodos com surtos (aumentos bruscos) ou reduções expressivas de focos.
 
@@ -129,7 +121,7 @@ def executar_analise(
     caminho_entrada: str = "dados/tratado/queimadas_tratado.csv",
     diretorio_saida: str = "outputs/analise",
     estado_alvo: str = "PARA",
-    municipio_alvo: str = "OBIDOS"
+    municipio_alvo: str = "OBIDOS",
 ) -> Dict[str, pd.DataFrame]:
     """Executa a análise estatística completa e exporta relatórios tabulares.
 
@@ -148,11 +140,11 @@ def executar_analise(
     # Filtragem
     df_estado = (
         df[df["estado"].str.contains(estado_alvo, na=False)]
-        if "estado" in df.columns else pd.DataFrame()
+        if "estado" in df.columns
+        else pd.DataFrame()
     )
     df_municipio = (
-        df[df["municipio"] == municipio_alvo]
-        if "municipio" in df.columns else pd.DataFrame()
+        df[df["municipio"] == municipio_alvo] if "municipio" in df.columns else pd.DataFrame()
     )
 
     # Rankings
@@ -175,7 +167,12 @@ def executar_analise(
         logger.info("  - %s: %d focos", row["municipio"], row["focos"])
 
     if posicao_municipio is not None:
-        logger.info("Posição de %s no ranking: #%d (%d focos)", municipio_alvo, posicao_municipio, total_municipio)
+        logger.info(
+            "Posição de %s no ranking: #%d (%d focos)",
+            municipio_alvo,
+            posicao_municipio,
+            total_municipio,
+        )
     logger.info("Representatividade de %s: %.2f%% do total do estado", municipio_alvo, percentual)
 
     # Séries Temporais
@@ -210,30 +207,24 @@ def executar_analise(
 
 def parse_args() -> argparse.Namespace:
     """Configura argumentos de linha de comando."""
-    parser = argparse.ArgumentParser(description="Executa análise estatística dos dados de queimadas.")
+    parser = argparse.ArgumentParser(
+        description="Executa análise estatística dos dados de queimadas."
+    )
     parser.add_argument(
         "--entrada",
         type=str,
         default="dados/tratado/queimadas_tratado.csv",
-        help="Caminho do arquivo CSV tratado de entrada."
+        help="Caminho do arquivo CSV tratado de entrada.",
     )
     parser.add_argument(
         "--saida-dir",
         type=str,
         default="outputs/analise",
-        help="Diretório de saída para os relatórios estatísticos."
+        help="Diretório de saída para os relatórios estatísticos.",
     )
+    parser.add_argument("--estado", type=str, default="PARA", help="Estado alvo da análise.")
     parser.add_argument(
-        "--estado",
-        type=str,
-        default="PARA",
-        help="Estado alvo da análise."
-    )
-    parser.add_argument(
-        "--municipio",
-        type=str,
-        default="OBIDOS",
-        help="Município alvo da análise."
+        "--municipio", type=str, default="OBIDOS", help="Município alvo da análise."
     )
     return parser.parse_args()
 
@@ -246,7 +237,7 @@ def main() -> None:
             caminho_entrada=args.entrada,
             diretorio_saida=args.saida_dir,
             estado_alvo=args.estado.upper().strip(),
-            municipio_alvo=args.municipio.upper().strip()
+            municipio_alvo=args.municipio.upper().strip(),
         )
     except Exception as exc:
         logger.error("Falha ao executar análise estatística: %s", exc)
