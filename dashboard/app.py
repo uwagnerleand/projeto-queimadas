@@ -1,14 +1,15 @@
-import streamlit as st
-import pandas as pd
-import folium
-import altair as alt
-from streamlit_folium import st_folium
-from io import BytesIO
-import os
-import requests
-import zipfile
 import io
+import os
+import zipfile
 from datetime import datetime
+from io import BytesIO
+
+import altair as alt
+import folium
+import pandas as pd
+import requests
+import streamlit as st
+from streamlit_folium import st_folium
 
 # =========================
 # 📦 IMPORTS PARA EXPORTAÇÃO GEOESPACIAL (OPCIONAIS)
@@ -24,7 +25,6 @@ except (ImportError, OSError):
     Point = None
     GEOESPACIAL_DISPONIVEL = False
 import tempfile
-import shutil
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
@@ -114,7 +114,7 @@ section[data-testid="stSidebar"] {
         #0f172a 0%,
         #1e293b 100%
     );
-    
+
     border-right: 1px solid rgba(255,255,255,0.08);
 }
 
@@ -425,7 +425,7 @@ div[role="listbox"]::-webkit-scrollbar-thumb:hover {
     transform: translateY(-1px) !important;
     box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4) !important;
 }
-            
+
 /* =========================================
    CARDS
 ========================================= */
@@ -616,7 +616,7 @@ def preparar_exportacao(df):
     object_cols = [
         col for col in df_export.columns
         if col != geometry_col and (
-            pd.api.types.is_object_dtype(df_export[col]) or 
+            pd.api.types.is_object_dtype(df_export[col]) or
             pd.api.types.is_string_dtype(df_export[col])
         )
     ]
@@ -706,7 +706,7 @@ def exportar_shapefile_zip(gdf):
             zip_buffer.seek(0)
             return zip_buffer.getvalue()
 
-        except Exception as e:
+        except Exception:
             return None
 
 
@@ -797,12 +797,19 @@ def carregar_dados_inpe():
 
 @st.cache_data
 def carregar_dados():
+    df = None
     if os.path.exists(DATA_FILE):
-        df = pd.read_csv(DATA_FILE)
-    else:
+        try:
+            df_temp = pd.read_csv(DATA_FILE, low_memory=False)
+            if "data" in df_temp.columns and len(df_temp) > 10:
+                df = df_temp
+        except Exception:
+            df = None
+
+    if df is None:
         df = carregar_dados_inpe()
 
-    df = df.rename(columns={"lat": "latitude", "lon": "longitude"})
+    df = df.rename(columns={"lat": "latitude", "lon": "longitude", "long": "longitude"})
 
     df["data"] = pd.to_datetime(df["data"], errors="coerce")
     df = df.dropna(subset=["data"])
@@ -815,12 +822,6 @@ def carregar_dados():
 
     return df
 
-
-if not os.path.exists(DATA_FILE):
-    st.info(
-        "Arquivo local não encontrado nesta implantação. "
-        f"O app usará os dados do INPE como fallback para os anos: {', '.join(map(str, INPE_YEARS))}."
-    )
 
 try:
     df = carregar_dados()
@@ -837,38 +838,38 @@ with st.sidebar:
     # Logo na sidebar
     if os.path.exists(LOGO_FILE):
         st.image(LOGO_FILE, width=80)
-    
+
     st.title("⚙️ Filtros")
     st.markdown("---")
-    
+
     # Botão de limpar cache
     if st.button("🔄 Limpar Cache", width="stretch"):
         st.cache_data.clear()
         st.rerun()
-    
+
     st.markdown("---")
-    
+
     # Filtros
     estado_sel = st.selectbox(
         "📍 Estado",
         sorted(df["estado"].unique()),
         help="Selecione o estado para filtrar os dados"
     )
-    
+
     df_estado = df[df["estado"] == estado_sel]
-    
+
     municipio_sel = st.selectbox(
         "🏙️ Município",
         sorted(df_estado["municipio"].unique()),
         help="Selecione o município para análise detalhada"
     )
-    
+
     ano_sel = st.selectbox(
         "📅 Ano",
         sorted(df["ano"].unique(), reverse=True),
         help="Selecione o ano de referência"
     )
-    
+
     # Informações adicionais
     st.markdown("---")
     st.markdown("### 📊 Resumo")
@@ -881,10 +882,10 @@ with st.sidebar:
         (df["estado"] == estado_sel) &
         (df["ano"] == ano_sel)
     ]
-    
+
     st.metric("Total de focos", len(df_filtrado))
     st.metric("Focos no estado", len(df_estado_ano))
-    
+
     # Debug expander
     with st.expander("🔍 Informações Técnicas"):
         st.write(f"**Anos disponíveis:** {sorted(df['ano'].unique(), reverse=True)}")
@@ -977,7 +978,7 @@ with tab1:
 
     if not df_filtrado.empty:
         grafico = df_filtrado.groupby("mes").size().reset_index(name="focos")
-        
+
         meses = {
             1:"Jan", 2:"Fev", 3:"Mar", 4:"Abr", 5:"Mai", 6:"Jun",
             7:"Jul", 8:"Ago", 9:"Set", 10:"Out", 11:"Nov", 12:"Dez"
@@ -986,7 +987,7 @@ with tab1:
         meses_completos = pd.DataFrame({"mes": list(range(1, 13))})
         grafico = meses_completos.merge(grafico, on="mes", how="left").fillna({"focos": 0})
         grafico["mes_nome"] = grafico["mes"].map(meses)
-        
+
         # Cores baseadas na intensidade
         max_focos = grafico["focos"].max()
         if max_focos == 0:
@@ -995,16 +996,16 @@ with tab1:
             grafico["cor"] = grafico["focos"].apply(
                 lambda x: f"rgb({int(37 + (x/max_focos)*183)}, {int(99 + (x/max_focos)*66)}, {int(235 + (x/max_focos)*10)})"
             )
-        
+
         chart = alt.Chart(grafico).mark_bar(
             cornerRadius=8,
             opacity=0.9
         ).encode(
-            x=alt.X("mes_nome:N", 
-                    title="Mês", 
+            x=alt.X("mes_nome:N",
+                    title="Mês",
                     sort=list(meses.values()),
                     axis=alt.Axis(labelFontSize=12, titleFontSize=14, labelFontWeight=600, labelColor="#374151", titleColor="#1f2937")),
-            y=alt.Y("focos:Q", 
+            y=alt.Y("focos:Q",
                     title="Número de Focos",
                     axis=alt.Axis(labelFontSize=12, titleFontSize=14, labelFontWeight=600, labelColor="#374151", titleColor="#1f2937")),
             color=alt.Color("cor:N", scale=None),
@@ -1023,13 +1024,13 @@ with tab1:
             labelColor="#374151",
             titleColor="#1f2937"
         )
-        
+
         st.altair_chart(chart, width="stretch")
     else:
         st.warning("⚠️ Sem dados disponíveis para o período selecionado.")
 
     st.markdown("<br>", unsafe_allow_html=True)
-    
+
     # Gráfico de Evolução Histórica
     st.markdown("""
     <div class="content-card">
@@ -1039,32 +1040,34 @@ with tab1:
     </div>
     """, unsafe_allow_html=True)
 
-    df_evolucao = df_filtrado.copy()
+    modo_historico = st.radio(
+        "Escopo temporal:",
+        ["Série Histórica Completa (Todos os Anos)", f"Apenas o Ano Selecionado ({ano_sel})"],
+        horizontal=True
+    )
+
+    if modo_historico.startswith("Série Histórica"):
+        df_evolucao = df[(df["estado"] == estado_sel) & (df["municipio"] == municipio_sel)].copy()
+    else:
+        df_evolucao = df_filtrado.copy()
+
     serie = df_evolucao.groupby(["ano", "mes"]).size().reset_index(name="focos")
 
     if not serie.empty:
-        meses_completos = pd.DataFrame({"mes": list(range(1, 13))})
-        serie = (
-            meses_completos
-            .merge(serie, on="mes", how="left")
-            .fillna({"focos": 0})
-            .assign(ano=ano_sel)
-        )
-
-    if not serie.empty:
         serie["data"] = pd.to_datetime(
-            serie["ano"].astype(str) + "-" + serie["mes"].astype(str) + "-01"
+            serie["ano"].astype(str) + "-" + serie["mes"].astype(str).str.zfill(2) + "-01"
         )
+        serie = serie.sort_values("data")
 
         chart = alt.Chart(serie).mark_line(
             color="#2563eb",
             point=alt.OverlayMarkDef(color="#2563eb", filled=True, size=60),
             strokeWidth=3
         ).encode(
-            x=alt.X("data:T", 
+            x=alt.X("data:T",
                     title="Período",
                     axis=alt.Axis(format="%b %Y", labelFontSize=12, titleFontSize=14, labelColor="#374151", titleColor="#1f2937")),
-            y=alt.Y("focos:Q", 
+            y=alt.Y("focos:Q",
                     title="Focos",
                     axis=alt.Axis(labelFontSize=12, titleFontSize=14, labelColor="#374151", titleColor="#1f2937")),
             tooltip=[
@@ -1082,7 +1085,7 @@ with tab1:
             labelColor="#374151",
             titleColor="#1f2937"
         )
-        
+
         st.altair_chart(chart, width="stretch")
     else:
         st.warning("⚠️ Sem dados históricos disponíveis.")
@@ -1108,7 +1111,7 @@ with tab2:
             zoom_start=8,
             tiles="CartoDB positron"  # Estilo mais limpo
         )
-        
+
         # Adicionar marcador para o centro
         folium.Marker(
             location=[df_mapa["latitude"].mean(), df_mapa["longitude"].mean()],
@@ -1155,24 +1158,27 @@ with tab3:
         top10["municipio_label"] = top10.apply(
             lambda row: f"{int(row['posicao'])}º - {row['municipio']}", axis=1
         )
-        
+
         # Cores baseadas na posição
-        def get_color(pos):
-            if pos == 1: return "#fbbf24"  # Ouro
-            elif pos == 2: return "#94a3b8"  # Prata
-            elif pos == 3: return "#b45309"  # Bronze
-            else: return "#2563eb"  # Azul
-        
+        def get_color(pos: int) -> str:
+            if pos == 1:
+                return "#fbbf24"  # Ouro
+            if pos == 2:
+                return "#94a3b8"  # Prata
+            if pos == 3:
+                return "#b45309"  # Bronze
+            return "#2563eb"  # Azul
+
         top10["cor"] = top10["posicao"].apply(get_color)
-        
+
         chart = alt.Chart(top10).mark_bar(
             cornerRadius=8,
             opacity=0.9
         ).encode(
-            x=alt.X("focos:Q", 
+            x=alt.X("focos:Q",
                     title="Número de Focos",
                     axis=alt.Axis(labelFontSize=12, titleFontSize=14, labelColor="#374151", titleColor="#1f2937")),
-            y=alt.Y("municipio_label:N", 
+            y=alt.Y("municipio_label:N",
                     sort="-x",
                     title="",
                     axis=alt.Axis(labelFontSize=11, labelFontWeight=600, labelColor="#374151")),
@@ -1193,20 +1199,20 @@ with tab3:
             labelColor="#374151",
             titleColor="#1f2937"
         )
-        
+
         st.altair_chart(chart, width="stretch")
-        
+
         # Posição do município selecionado
         if municipio_sel in ranking["municipio"].values:
             pos = ranking.sort_values("focos", ascending=False)\
                          .reset_index()\
                          .query("municipio == @municipio_sel")\
                          .index[0] + 1
-            
+
             emoji = "🥇" if pos == 1 else "🥈" if pos == 2 else "🥉" if pos == 3 else "📍"
-            
+
             st.markdown(f"""
-            <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); 
+            <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
                         border-radius: 12px; padding: 1rem 1.5rem; margin-top: 1rem;
                         border: 1px solid #bae6fd; display: inline-block;">
                 <span style="font-size: 1.25rem; font-weight: 600; color: #0369a1;">
