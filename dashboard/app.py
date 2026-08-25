@@ -27,6 +27,7 @@ from streamlit_folium import st_folium
 try:
     import geopandas as gpd
     from shapely.geometry import Point
+
     GEOESPACIAL_DISPONIVEL = True
 except (ImportError, OSError):
     gpd = None
@@ -48,17 +49,18 @@ st.set_page_config(
     page_title="Projeto Queimadas Pro | Monitoramento Ambiental",
     page_icon="🔥",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
 # ==============================================================================
 # 💎 CSS DESIGN SYSTEM & ÍCONES (FONTAWESOME + MODERN GLASSMORPHISM)
 # ==============================================================================
-st.markdown("""
+st.html("""
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
 :root {
     --primary-color: #3b82f6;
     --primary-gradient: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
@@ -72,16 +74,12 @@ st.markdown("""
     --shadow-soft: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
     --shadow-hover: 0 12px 28px -4px rgba(15, 23, 42, 0.12);
 }
-
 html, body, [class*="css"] {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
-
 .stApp {
     background: #f8fafc;
 }
-
-/* Header Banner */
 .hero-banner {
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #312e81 100%);
     border-radius: 18px;
@@ -93,7 +91,6 @@ html, body, [class*="css"] {
     margin-bottom: 1.5rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
-
 .hero-banner::after {
     content: '';
     position: absolute;
@@ -105,7 +102,6 @@ html, body, [class*="css"] {
     border-radius: 50%;
     pointer-events: none;
 }
-
 .hero-title {
     font-size: 2rem;
     font-weight: 800;
@@ -116,22 +112,18 @@ html, body, [class*="css"] {
     gap: 0.75rem;
     color: #ffffff !important;
 }
-
 .hero-subtitle {
     font-size: 1rem;
     color: #94a3b8 !important;
     margin-top: 0.5rem;
     font-weight: 500;
 }
-
-/* Metric Cards */
 .metric-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1.25rem;
     margin-bottom: 1.5rem;
 }
-
 .glass-card {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
@@ -141,20 +133,17 @@ html, body, [class*="css"] {
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
 }
-
 .glass-card:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-hover);
     border-color: #cbd5e1;
 }
-
 .metric-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.75rem;
 }
-
 .metric-title {
     font-size: 0.875rem;
     font-weight: 600;
@@ -162,7 +151,6 @@ html, body, [class*="css"] {
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
-
 .metric-icon-box {
     width: 42px;
     height: 42px;
@@ -172,7 +160,6 @@ html, body, [class*="css"] {
     justify-content: center;
     font-size: 1.25rem;
 }
-
 .metric-val {
     font-size: 1.85rem;
     font-weight: 800;
@@ -180,7 +167,6 @@ html, body, [class*="css"] {
     letter-spacing: -0.02em;
     line-height: 1.2;
 }
-
 .metric-footer {
     font-size: 0.825rem;
     margin-top: 0.5rem;
@@ -189,12 +175,9 @@ html, body, [class*="css"] {
     align-items: center;
     gap: 0.35rem;
 }
-
 .trend-up { color: #ef4444; }
 .trend-down { color: #10b981; }
 .trend-neutral { color: #64748b; }
-
-/* Status Badges */
 .badge {
     display: inline-flex;
     align-items: center;
@@ -209,8 +192,6 @@ html, body, [class*="css"] {
 .badge-high { background: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
 .badge-medium { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
 .badge-low { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-
-/* Sidebar Premium */
 section[data-testid="stSidebar"] {
     background: linear-gradient(180deg, #090d16 0%, #0f172a 100%);
     border-right: 1px solid rgba(255, 255, 255, 0.08);
@@ -223,8 +204,6 @@ section[data-testid="stSidebar"] .stSelectbox label {
     font-size: 0.9rem !important;
     color: #cbd5e1 !important;
 }
-
-/* Tabs */
 .stTabs [data-baseweb="tab-list"] {
     background: white;
     border-radius: 14px;
@@ -245,8 +224,6 @@ section[data-testid="stSidebar"] .stSelectbox label {
     color: white !important;
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
-
-/* Download buttons */
 .stDownloadButton > button {
     background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
     color: white !important;
@@ -261,8 +238,6 @@ section[data-testid="stSidebar"] .stSelectbox label {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4) !important;
 }
-
-/* Primary buttons */
 .stButton > button {
     background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%) !important;
     color: white !important;
@@ -278,12 +253,13 @@ section[data-testid="stSidebar"] .stSelectbox label {
     box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4) !important;
 }
 </style>
-""", unsafe_allow_html=True)
+""")
 
 
 # ==============================================================================
 # 📦 FUNÇÕES DE EXPORTAÇÃO SIG & TABULARES
 # ==============================================================================
+
 
 def preparar_exportacao(df: pd.DataFrame) -> pd.DataFrame:
     """Prepara colunas temporais e de texto para exportação em formatos compatíveis."""
@@ -311,7 +287,9 @@ def criar_geodataframe(df: pd.DataFrame):
     df_geo["latitude"] = pd.to_numeric(df_geo["latitude"], errors="coerce")
     df_geo["longitude"] = pd.to_numeric(df_geo["longitude"], errors="coerce")
     df_geo = df_geo.dropna(subset=["latitude", "longitude"])
-    df_geo = df_geo[(df_geo["latitude"].between(-90, 90)) & (df_geo["longitude"].between(-180, 180))]
+    df_geo = df_geo[
+        (df_geo["latitude"].between(-90, 90)) & (df_geo["longitude"].between(-180, 180))
+    ]
 
     geometry = [Point(lon, lat) for lon, lat in zip(df_geo.longitude, df_geo.latitude)]
     gdf = gpd.GeoDataFrame(df_geo, geometry=geometry, crs="EPSG:4326")
@@ -367,6 +345,7 @@ def exportar_excel(df: pd.DataFrame, ranking: pd.DataFrame) -> bytes:
 # 📥 CARREGAMENTO E INGESTÃO DE DADOS COM CACHE
 # ==============================================================================
 
+
 def carregar_dados_inpe_ano(ano: int) -> pd.DataFrame:
     """Baixa e extrai dados do INPE diretamente da nuvem."""
     url = f"https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/anual/Brasil_sat_ref/focos_br_ref_{ano}.zip"
@@ -410,7 +389,9 @@ def carregar_dados() -> pd.DataFrame:
 
     df = df.rename(columns={"lat": "latitude", "lon": "longitude", "long": "longitude"})
 
-    col_data = "datahora" if "datahora" in df.columns else "data" if "data" in df.columns else "data_pas"
+    col_data = (
+        "datahora" if "datahora" in df.columns else "data" if "data" in df.columns else "data_pas"
+    )
     df["data"] = pd.to_datetime(df[col_data], errors="coerce")
     df = df.dropna(subset=["data"])
 
@@ -439,7 +420,7 @@ except Exception as exc:
 # 🎛️ SIDEBAR - FILTROS DINÂMICOS & CONTROLES
 # ==============================================================================
 with st.sidebar:
-    st.markdown("""
+    st.html("""
     <div style="text-align: center; padding: 1rem 0;">
         <h2 style="color: white; margin: 0; font-size: 1.4rem; font-weight: 800;">
             🔥 QUEIMADAS <span style="color: #38bdf8; font-size: 0.8rem; background: rgba(56, 189, 248, 0.2); padding: 2px 8px; border-radius: 8px;">PRO</span>
@@ -447,9 +428,9 @@ with st.sidebar:
         <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 4px;">Monitoramento Satelital INPE</p>
     </div>
     <hr style="border-color: rgba(255,255,255,0.1); margin: 0.5rem 0 1.25rem 0;">
-    """, unsafe_allow_html=True)
+    """)
 
-    st.markdown("### <i class='fa-solid fa-sliders'></i> Filtros de Consulta", unsafe_allow_html=True)
+    st.markdown("### 🎛️ Filtros de Consulta")
 
     # 1. Filtro de Estado
     estados_disponiveis = sorted(df_geral["estado"].unique())
@@ -460,14 +441,16 @@ with st.sidebar:
 
     # 2. Filtro de Município
     municipios_disponiveis = sorted(df_estado["municipio"].unique())
-    mun_default_idx = municipios_disponiveis.index("OBIDOS") if "OBIDOS" in municipios_disponiveis else 0
+    mun_default_idx = (
+        municipios_disponiveis.index("OBIDOS") if "OBIDOS" in municipios_disponiveis else 0
+    )
     municipio_sel = st.selectbox("🏙️ Município", municipios_disponiveis, index=mun_default_idx)
 
     # 3. Filtro de Ano
     anos_disponiveis = sorted(df_geral["ano"].unique(), reverse=True)
     ano_sel = st.selectbox("📅 Ano de Referência", anos_disponiveis, index=0)
 
-    st.markdown("<hr style='border-color: rgba(255,255,255,0.1); margin: 1rem 0;'>", unsafe_allow_html=True)
+    st.html("<hr style='border-color: rgba(255,255,255,0.1); margin: 1rem 0;'>")
 
     # Botão de Ação Rápida
     if st.button("🔄 Atualizar / Limpar Cache", use_container_width=True):
@@ -475,28 +458,24 @@ with st.sidebar:
         st.rerun()
 
     # Informações Técnicas na Sidebar
-    st.markdown("""
+    st.html("""
     <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 12px; margin-top: 1rem; border: 1px solid rgba(255, 255, 255, 0.08);">
         <p style="font-size: 0.75rem; color: #94a3b8; margin: 0;"><i class="fa-solid fa-satellite-dish"></i> <b>Fonte:</b> INPE / BDQueimadas</p>
         <p style="font-size: 0.75rem; color: #94a3b8; margin: 4px 0 0 0;"><i class="fa-solid fa-clock"></i> <b>Atualização:</b> Satélite de Ref.</p>
         <p style="font-size: 0.75rem; color: #94a3b8; margin: 4px 0 0 0;"><i class="fa-solid fa-shield-halved"></i> <b>Status:</b> Operacional</p>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
 
 # Filtragem dos conjuntos de dados
 df_filtrado = df_geral[
-    (df_geral["estado"] == estado_sel) &
-    (df_geral["municipio"] == municipio_sel) &
-    (df_geral["ano"] == ano_sel)
+    (df_geral["estado"] == estado_sel)
+    & (df_geral["municipio"] == municipio_sel)
+    & (df_geral["ano"] == ano_sel)
 ]
-df_estado_ano = df_geral[
-    (df_geral["estado"] == estado_sel) &
-    (df_geral["ano"] == ano_sel)
-]
+df_estado_ano = df_geral[(df_geral["estado"] == estado_sel) & (df_geral["ano"] == ano_sel)]
 df_municipio_historico = df_geral[
-    (df_geral["estado"] == estado_sel) &
-    (df_geral["municipio"] == municipio_sel)
+    (df_geral["estado"] == estado_sel) & (df_geral["municipio"] == municipio_sel)
 ]
 
 
@@ -517,7 +496,7 @@ elif total_focos > 100:
 else:
     badge_html = "<span class='badge badge-low'><i class='fa-solid fa-circle-check'></i> Risco Controlado</span>"
 
-st.markdown(f"""
+st.html(f"""
 <div class="hero-banner">
     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
         <div>
@@ -534,7 +513,7 @@ st.markdown(f"""
         </div>
     </div>
 </div>
-""", unsafe_allow_html=True)
+""")
 
 
 # ==============================================================================
@@ -557,8 +536,18 @@ else:
 if not df_filtrado.empty:
     pico_mes_num = df_filtrado.groupby("mes").size().idxmax()
     meses_nomes = {
-        1: "Janeiro", 2: "Fevereiro", 3: "Março", 4: "Abril", 5: "Maio", 6: "Junho",
-        7: "Julho", 8: "Agosto", 9: "Setembro", 10: "Outubro", 11: "Novembro", 12: "Dezembro"
+        1: "Janeiro",
+        2: "Fevereiro",
+        3: "Março",
+        4: "Abril",
+        5: "Maio",
+        6: "Junho",
+        7: "Julho",
+        8: "Agosto",
+        9: "Setembro",
+        10: "Outubro",
+        11: "Novembro",
+        12: "Dezembro",
     }
     pico_mes_nome = meses_nomes.get(pico_mes_num, "N/A")
     pico_focos = df_filtrado.groupby("mes").size().max()
@@ -566,7 +555,7 @@ else:
     pico_mes_nome = "N/A"
     pico_focos = 0
 
-st.markdown(f"""
+st.html(f"""
 <div class="metric-grid">
     <div class="glass-card">
         <div class="metric-header">
@@ -617,20 +606,22 @@ st.markdown(f"""
         </div>
     </div>
 </div>
-""", unsafe_allow_html=True)
+""")
 
 
 # ==============================================================================
 # 📑 ABAS DE NAVEGAÇÃO E ANÁLISE INTERATIVA
 # ==============================================================================
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "📊 Visão Geral & KPIs",
-    "📈 Análise Temporal & Sazonal",
-    "🗺️ GeoAnalytics & Mapa",
-    "🏆 Ranking & Comparativos",
-    "📋 Base de Dados & SIG",
-    "📑 Relatório Oficial PDF"
-])
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+    [
+        "📊 Visão Geral & KPIs",
+        "📈 Análise Temporal & Sazonal",
+        "🗺️ GeoAnalytics & Mapa",
+        "🏆 Ranking & Comparativos",
+        "📋 Base de Dados & SIG",
+        "📑 Relatório Oficial PDF",
+    ]
+)
 
 
 # ------------------------------------------------------------------------------
@@ -640,11 +631,28 @@ with tab1:
     col_g1, col_g2 = st.columns([3, 2])
 
     with col_g1:
-        st.markdown("#### <i class='fa-solid fa-chart-simple'></i> Distribuição Mensal de Focos de Calor", unsafe_allow_html=True)
+        st.markdown("#### 📊 Distribuição Mensal de Focos de Calor")
         if not df_filtrado.empty:
             df_mes = df_filtrado.groupby("mes").size().reset_index(name="focos")
-            meses_map = {1:"Jan", 2:"Fev", 3:"Mar", 4:"Abr", 5:"Mai", 6:"Jun", 7:"Jul", 8:"Ago", 9:"Set", 10:"Out", 11:"Nov", 12:"Dez"}
-            df_mes_full = pd.DataFrame({"mes": list(range(1, 13))}).merge(df_mes, on="mes", how="left").fillna({"focos": 0})
+            meses_map = {
+                1: "Jan",
+                2: "Fev",
+                3: "Mar",
+                4: "Abr",
+                5: "Mai",
+                6: "Jun",
+                7: "Jul",
+                8: "Ago",
+                9: "Set",
+                10: "Out",
+                11: "Nov",
+                12: "Dez",
+            }
+            df_mes_full = (
+                pd.DataFrame({"mes": list(range(1, 13))})
+                .merge(df_mes, on="mes", how="left")
+                .fillna({"focos": 0})
+            )
             df_mes_full["mes_nome"] = df_mes_full["mes"].map(meses_map)
 
             fig_bar = px.bar(
@@ -660,7 +668,7 @@ with tab1:
                 textposition="outside",
                 texttemplate="%{text:,.0f}",
                 marker_line_width=0,
-                opacity=0.9
+                opacity=0.9,
             )
             fig_bar.update_layout(
                 plot_bgcolor="rgba(0,0,0,0)",
@@ -669,42 +677,47 @@ with tab1:
                 margin=dict(l=10, r=10, t=25, b=10),
                 coloraxis_showscale=False,
                 xaxis=dict(showgrid=False, tickfont=dict(size=12, color="#334155")),
-                yaxis=dict(showgrid=True, gridcolor="#f1f5f9", tickfont=dict(size=11, color="#64748b")),
+                yaxis=dict(
+                    showgrid=True, gridcolor="#f1f5f9", tickfont=dict(size=11, color="#64748b")
+                ),
             )
             st.plotly_chart(fig_bar, use_container_width=True)
         else:
             st.info("Nenhum dado registrado para o período selecionado.")
 
     with col_g2:
-        st.markdown("#### <i class='fa-solid fa-gauge-high'></i> Indicador de Intensidade e Risco", unsafe_allow_html=True)
+        st.markdown("#### ⏱️ Indicador de Intensidade e Risco")
         max_gauge = max(total_focos * 1.5, 1000)
-        fig_gauge = go.Figure(go.Indicator(
-            mode="gauge+number",
-            value=total_focos,
-            domain={'x': [0, 1], 'y': [0, 1]},
-            title={'text': f"Focos em {municipio_sel}", 'font': {'size': 14, 'color': '#475569'}},
-            gauge={
-                'axis': {'range': [None, max_gauge], 'tickwidth': 1, 'tickcolor': "#94a3b8"},
-                'bar': {'color': "#ef4444"},
-                'bgcolor': "white",
-                'borderwidth': 1,
-                'bordercolor': "#e2e8f0",
-                'steps': [
-                    {'range': [0, max_gauge * 0.3], 'color': '#dcfce7'},
-                    {'range': [max_gauge * 0.3, max_gauge * 0.7], 'color': '#fef3c7'},
-                    {'range': [max_gauge * 0.7, max_gauge], 'color': '#fee2e2'}
-                ],
-            }
-        ))
+        fig_gauge = go.Figure(
+            go.Indicator(
+                mode="gauge+number",
+                value=total_focos,
+                domain={"x": [0, 1], "y": [0, 1]},
+                title={
+                    "text": f"Focos em {municipio_sel}",
+                    "font": {"size": 14, "color": "#475569"},
+                },
+                gauge={
+                    "axis": {"range": [None, max_gauge], "tickwidth": 1, "tickcolor": "#94a3b8"},
+                    "bar": {"color": "#ef4444"},
+                    "bgcolor": "white",
+                    "borderwidth": 1,
+                    "bordercolor": "#e2e8f0",
+                    "steps": [
+                        {"range": [0, max_gauge * 0.3], "color": "#dcfce7"},
+                        {"range": [max_gauge * 0.3, max_gauge * 0.7], "color": "#fef3c7"},
+                        {"range": [max_gauge * 0.7, max_gauge], "color": "#fee2e2"},
+                    ],
+                },
+            )
+        )
         fig_gauge.update_layout(
-            height=360,
-            margin=dict(l=20, r=20, t=40, b=20),
-            paper_bgcolor="rgba(0,0,0,0)"
+            height=360, margin=dict(l=20, r=20, t=40, b=20), paper_bgcolor="rgba(0,0,0,0)"
         )
         st.plotly_chart(fig_gauge, use_container_width=True)
 
     # Diagnóstico e Destaques Ambientais
-    st.markdown("""
+    st.html("""
     <div style="background: white; border: 1px solid #e2e8f0; border-radius: 14px; padding: 1.25rem 1.5rem; margin-top: 1rem;">
         <h4 style="margin: 0 0 0.5rem 0; color: #0f172a; font-size: 1.05rem;">
             <i class="fa-solid fa-bullhorn" style="color: #3b82f6;"></i> Diagnóstico Rápido de Gestão Ambiental
@@ -714,21 +727,21 @@ with tab1:
             Recomenda-se o fortalecimento preventivo das brigadas de incêndio e monitoramento contínuo das áreas de maior densidade de calor.
         </p>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
 
 # ------------------------------------------------------------------------------
 # TAB 2: ANÁLISE TEMPORAL & SAZONALIDADE
 # ------------------------------------------------------------------------------
 with tab2:
-    st.markdown("#### <i class='fa-solid fa-timeline'></i> Série Temporal Histórica de Queimadas", unsafe_allow_html=True)
+    st.markdown("#### 📈 Série Temporal Histórica de Queimadas")
 
     col_t1, col_t2 = st.columns([3, 1])
     with col_t1:
         escopo_temporal = st.radio(
             "Visualização da Série:",
             ["Série Multianual Completa (2020 a 2024)", f"Apenas o Ano Selecionado ({ano_sel})"],
-            horizontal=True
+            horizontal=True,
         )
 
     if escopo_temporal.startswith("Série Multianual"):
@@ -737,7 +750,9 @@ with tab2:
         df_serie = df_filtrado.groupby(["ano", "mes"]).size().reset_index(name="focos")
 
     if not df_serie.empty:
-        df_serie["data"] = pd.to_datetime(df_serie["ano"].astype(str) + "-" + df_serie["mes"].astype(str).str.zfill(2) + "-01")
+        df_serie["data"] = pd.to_datetime(
+            df_serie["ano"].astype(str) + "-" + df_serie["mes"].astype(str).str.zfill(2) + "-01"
+        )
         df_serie = df_serie.sort_values("data")
 
         # Gráfico Interativo com Range Slider
@@ -746,11 +761,10 @@ with tab2:
             x="data",
             y="focos",
             labels={"data": "Data", "focos": "Focos de Calor"},
-            color_discrete_sequence=["#3b82f6"]
+            color_discrete_sequence=["#3b82f6"],
         )
         fig_time.update_traces(
-            line=dict(width=2.5, color="#2563eb"),
-            fillcolor="rgba(59, 130, 246, 0.15)"
+            line=dict(width=2.5, color="#2563eb"), fillcolor="rgba(59, 130, 246, 0.15)"
         )
         fig_time.update_layout(
             height=380,
@@ -758,24 +772,39 @@ with tab2:
             paper_bgcolor="rgba(0,0,0,0)",
             xaxis=dict(
                 rangeselector=dict(
-                    buttons=list([
-                        dict(count=6, label="6m", step="month", stepmode="backward"),
-                        dict(count=1, label="1 ano", step="year", stepmode="backward"),
-                        dict(step="all", label="Tudo")
-                    ])
+                    buttons=list(
+                        [
+                            dict(count=6, label="6m", step="month", stepmode="backward"),
+                            dict(count=1, label="1 ano", step="year", stepmode="backward"),
+                            dict(step="all", label="Tudo"),
+                        ]
+                    )
                 ),
                 rangeslider=dict(visible=True, thickness=0.08),
-                type="date"
+                type="date",
             ),
-            margin=dict(l=10, r=10, t=10, b=10)
+            margin=dict(l=10, r=10, t=10, b=10),
         )
         st.plotly_chart(fig_time, use_container_width=True)
 
     # Comparativo Interanual Mês a Mês
-    st.markdown("#### <i class='fa-solid fa-code-compare'></i> Comparativo de Sazonalidade por Ano (Mês a Mês)", unsafe_allow_html=True)
+    st.markdown("#### 🔄 Comparativo de Sazonalidade por Ano (Mês a Mês)")
     if not df_municipio_historico.empty:
         df_sazonal = df_municipio_historico.groupby(["ano", "mes"]).size().reset_index(name="focos")
-        meses_labels = {1:"Jan", 2:"Fev", 3:"Mar", 4:"Abr", 5:"Mai", 6:"Jun", 7:"Jul", 8:"Ago", 9:"Set", 10:"Out", 11:"Nov", 12:"Dez"}
+        meses_labels = {
+            1: "Jan",
+            2: "Fev",
+            3: "Mar",
+            4: "Abr",
+            5: "Mai",
+            6: "Jun",
+            7: "Jul",
+            8: "Ago",
+            9: "Set",
+            10: "Out",
+            11: "Nov",
+            12: "Dez",
+        }
         df_sazonal["mes_nome"] = df_sazonal["mes"].map(meses_labels)
 
         fig_comp = px.line(
@@ -785,14 +814,14 @@ with tab2:
             color="ano",
             markers=True,
             labels={"mes_nome": "Mês", "focos": "Focos", "ano": "Ano"},
-            color_discrete_sequence=px.colors.qualitative.Bold
+            color_discrete_sequence=px.colors.qualitative.Bold,
         )
         fig_comp.update_layout(
             height=360,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(l=10, r=10, t=20, b=10),
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         )
         st.plotly_chart(fig_comp, use_container_width=True)
 
@@ -801,7 +830,7 @@ with tab2:
 # TAB 3: GEOANALYTICS & MAPA INTERATIVO AVANÇADO
 # ------------------------------------------------------------------------------
 with tab3:
-    st.markdown("#### <i class='fa-solid fa-map-location-dot'></i> Mapeamento Espacial Interativo", unsafe_allow_html=True)
+    st.markdown("#### 🗺️ Mapeamento Espacial Interativo")
 
     df_mapa = df_filtrado.dropna(subset=["latitude", "longitude"])
 
@@ -810,11 +839,10 @@ with tab3:
         with col_m2:
             estilo_mapa = st.selectbox(
                 "Camada de Fundo:",
-                ["CartoDB Positron (Claro)", "OpenStreetMap", "Satélite (Esri WorldImagery)"]
+                ["CartoDB Positron (Claro)", "OpenStreetMap", "Satélite (Esri WorldImagery)"],
             )
             tipo_visualizacao = st.radio(
-                "Visualização:",
-                ["Mapa de Calor (HeatMap)", "Pontos Agrupados (Cluster)"]
+                "Visualização:", ["Mapa de Calor (HeatMap)", "Pontos Agrupados (Cluster)"]
             )
 
         # Configurar tiles
@@ -831,12 +859,7 @@ with tab3:
         centro_lat = float(df_mapa["latitude"].mean())
         centro_lon = float(df_mapa["longitude"].mean())
 
-        m = folium.Map(
-            location=[centro_lat, centro_lon],
-            zoom_start=9,
-            tiles=tiles_url,
-            attr=attr
-        )
+        m = folium.Map(location=[centro_lat, centro_lon], zoom_start=9, tiles=tiles_url, attr=attr)
 
         plugins.Fullscreen(position="topright").add_to(m)
         plugins.MiniMap(toggle_display=True).add_to(m)
@@ -848,7 +871,7 @@ with tab3:
                 radius=14,
                 blur=12,
                 max_zoom=10,
-                gradient={0.2: 'blue', 0.4: 'lime', 0.6: 'yellow', 0.8: 'orange', 1: 'red'}
+                gradient={0.2: "blue", 0.4: "lime", 0.6: "yellow", 0.8: "orange", 1: "red"},
             ).add_to(m)
         else:
             cluster = plugins.MarkerCluster().add_to(m)
@@ -862,7 +885,7 @@ with tab3:
                     fill=True,
                     fill_color="#ef4444",
                     fill_opacity=0.7,
-                    popup=f"<b>Data:</b> {str(row['data'])[:10]}<br><b>Município:</b> {municipio_sel}<br><b>Lat:</b> {row['latitude']:.4f}<br><b>Lon:</b> {row['longitude']:.4f}"
+                    popup=f"<b>Data:</b> {str(row['data'])[:10]}<br><b>Município:</b> {municipio_sel}<br><b>Lat:</b> {row['latitude']:.4f}<br><b>Lon:</b> {row['longitude']:.4f}",
                 ).add_to(cluster)
 
         with col_m1:
@@ -875,7 +898,7 @@ with tab3:
 # TAB 4: RANKING & COMPARATIVOS MUNICIPAIS
 # ------------------------------------------------------------------------------
 with tab4:
-    st.markdown(f"#### <i class='fa-solid fa-ranking-star'></i> Ranking de Queimadas no Estado do {estado_sel} ({ano_sel})", unsafe_allow_html=True)
+    st.markdown(f"#### 🏆 Ranking de Queimadas no Estado do {estado_sel} ({ano_sel})")
 
     ranking_estado = df_estado_ano.groupby("municipio").size().reset_index(name="focos")
     ranking_estado = ranking_estado.sort_values("focos", ascending=False).reset_index(drop=True)
@@ -886,9 +909,13 @@ with tab4:
 
         # Destaque do município selecionado
         if municipio_sel in ranking_estado["municipio"].values:
-            pos_atual = int(ranking_estado[ranking_estado["municipio"] == municipio_sel]["posicao"].values[0])
-            focos_atual = int(ranking_estado[ranking_estado["municipio"] == municipio_sel]["focos"].values[0])
-            st.markdown(f"""
+            pos_atual = int(
+                ranking_estado[ranking_estado["municipio"] == municipio_sel]["posicao"].values[0]
+            )
+            focos_atual = int(
+                ranking_estado[ranking_estado["municipio"] == municipio_sel]["focos"].values[0]
+            )
+            st.html(f"""
             <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 1.25rem; border: 1px solid #bfdbfe; display: flex; align-items: center; gap: 1rem;">
                 <div style="font-size: 2rem;">🏆</div>
                 <div>
@@ -898,7 +925,7 @@ with tab4:
                     <p style="margin: 0; color: #3b82f6; font-size: 0.85rem;">Representa {percentual_estado:.2f}% de todos os focos no estado do {estado_sel} em {ano_sel}.</p>
                 </div>
             </div>
-            """, unsafe_allow_html=True)
+            """)
 
         col_r1, col_r2 = st.columns([3, 2])
         with col_r1:
@@ -910,7 +937,7 @@ with tab4:
                 text="focos",
                 labels={"focos": "Focos de Calor", "municipio": "Município"},
                 color="focos",
-                color_continuous_scale="OrRd"
+                color_continuous_scale="OrRd",
             )
             fig_rank.update_traces(textposition="outside", texttemplate="%{text:,.0f}")
             fig_rank.update_layout(
@@ -918,12 +945,12 @@ with tab4:
                 plot_bgcolor="rgba(0,0,0,0)",
                 paper_bgcolor="rgba(0,0,0,0)",
                 coloraxis_showscale=False,
-                margin=dict(l=10, r=10, t=10, b=10)
+                margin=dict(l=10, r=10, t=10, b=10),
             )
             st.plotly_chart(fig_rank, use_container_width=True)
 
         with col_r2:
-            st.markdown("##### <i class='fa-solid fa-list-ol'></i> Top 10 Municípios", unsafe_allow_html=True)
+            st.markdown("##### 🥇 Top 10 Municípios")
             top10_display = top10_df[["posicao", "municipio", "focos"]].copy()
             top10_display.columns = ["Posição", "Município", "Focos"]
             st.dataframe(top10_display, hide_index=True, use_container_width=True, height=360)
@@ -933,13 +960,15 @@ with tab4:
 # TAB 5: CENTRAL DE DADOS & EXPORTAÇÃO SIG
 # ------------------------------------------------------------------------------
 with tab5:
-    st.markdown("#### <i class='fa-solid fa-database'></i> Base de Dados Completa e Exportação", unsafe_allow_html=True)
-    st.info(f"📊 Foram encontrados **{len(df_filtrado):,}** registros para {municipio_sel} ({estado_sel}) no ano {ano_sel}.")
+    st.markdown("#### 📋 Base de Dados Completa e Exportação")
+    st.info(
+        f"📊 Foram encontrados **{len(df_filtrado):,}** registros para {municipio_sel} ({estado_sel}) no ano {ano_sel}."
+    )
 
     st.dataframe(df_filtrado, height=380, use_container_width=True, hide_index=True)
 
     st.markdown("---")
-    st.markdown("### <i class='fa-solid fa-file-export'></i> Central de Downloads Multiformato", unsafe_allow_html=True)
+    st.markdown("### 📥 Central de Downloads Multiformato")
 
     col_e1, col_e2 = st.columns(2)
 
@@ -951,16 +980,18 @@ with tab5:
             data=csv_bytes,
             file_name=f"queimadas_{municipio_sel.lower()}_{ano_sel}.csv",
             mime="text/csv",
-            use_container_width=True
+            use_container_width=True,
         )
 
-        excel_bytes = exportar_excel(df_filtrado, ranking_estado if not ranking_estado.empty else pd.DataFrame())
+        excel_bytes = exportar_excel(
+            df_filtrado, ranking_estado if not ranking_estado.empty else pd.DataFrame()
+        )
         st.download_button(
             label="📊 Baixar Planilha Excel (.xlsx)",
             data=excel_bytes,
             file_name=f"queimadas_{municipio_sel.lower()}_{ano_sel}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            use_container_width=True
+            use_container_width=True,
         )
 
     with col_e2:
@@ -975,7 +1006,7 @@ with tab5:
                         data=geojson_bytes,
                         file_name=f"queimadas_{municipio_sel.lower()}_{ano_sel}.geojson",
                         mime="application/geo+json",
-                        use_container_width=True
+                        use_container_width=True,
                     )
 
                 shp_bytes = exportar_shapefile_zip(gdf_export)
@@ -985,7 +1016,7 @@ with tab5:
                         data=shp_bytes,
                         file_name=f"queimadas_{municipio_sel.lower()}_{ano_sel}.zip",
                         mime="application/zip",
-                        use_container_width=True
+                        use_container_width=True,
                     )
             except Exception as e:
                 st.warning(f"Exportação SIG indisponível: {e}")
@@ -997,39 +1028,47 @@ with tab5:
 # TAB 6: RELATÓRIO TÉCNICO OFICIAL PDF
 # ------------------------------------------------------------------------------
 with tab6:
-    st.markdown("#### <i class='fa-solid fa-file-pdf'></i> Relatório Técnico Oficial de Monitoramento (PDF)", unsafe_allow_html=True)
+    st.markdown("#### 📄 Relatório Técnico Oficial de Monitoramento (PDF)")
     st.markdown("""
     Gere e baixe automaticamente um relatório técnico em padrão oficial com capa governamental,
     introdução ambiental, análises descritivas, gráficos de alta resolução (300 DPI) e recomendações técnicas.
     """)
 
-    relatorio_oficial_path = os.path.join(ROOT_DIR, "outputs", "relatorios", f"relatorio_oficial_{municipio_sel.lower()}.pdf")
+    relatorio_oficial_path = os.path.join(
+        ROOT_DIR, "outputs", "relatorios", f"relatorio_oficial_{municipio_sel.lower()}.pdf"
+    )
     if not os.path.exists(relatorio_oficial_path):
-        relatorio_oficial_path = os.path.join(ROOT_DIR, "outputs", "relatorios", "relatorio_oficial_obidos.pdf")
+        relatorio_oficial_path = os.path.join(
+            ROOT_DIR, "outputs", "relatorios", "relatorio_oficial_obidos.pdf"
+        )
 
     if os.path.exists(relatorio_oficial_path):
         with open(relatorio_oficial_path, "rb") as f_pdf:
             pdf_data = f_pdf.read()
 
-        st.success(f"✅ Relatório Técnico Oficial compilado e disponível para download ({len(pdf_data)/1024/1024:.2f} MB).")
+        st.success(
+            f"✅ Relatório Técnico Oficial compilado e disponível para download ({len(pdf_data) / 1024 / 1024:.2f} MB)."
+        )
         st.download_button(
             label=f"📄 Download do Relatório Oficial ({municipio_sel}.pdf)",
             data=pdf_data,
             file_name=f"relatorio_tecnico_queimadas_{municipio_sel.lower()}_{ano_sel}.pdf",
             mime="application/pdf",
-            use_container_width=True
+            use_container_width=True,
         )
     else:
-        st.info("O relatório oficial ainda não foi compilado. Execute o pipeline de dados para gerá-lo.")
+        st.info(
+            "O relatório oficial ainda não foi compilado. Execute o pipeline de dados para gerá-lo."
+        )
 
 
 # ==============================================================================
 # 🦶 RODAPÉ OFICIAL
 # ==============================================================================
 st.markdown("---")
-st.markdown("""
+st.html("""
 <div style="text-align: center; color: #64748b; font-size: 0.85rem; padding: 1.5rem 0;">
     <p style="margin: 0;"><b>Projeto Queimadas Pro</b> — Plataforma de Inteligência e Monitoramento Geoespacial</p>
     <p style="margin: 4px 0 0 0;">Dados públicos abertos fornecidos pelo <b>INPE / BDQueimadas</b> | Desenvolvido com Streamlit, Plotly & ReportLab</p>
 </div>
-""", unsafe_allow_html=True)
+""")
