@@ -1,11 +1,16 @@
-streamlit
-requests
-pandas
-matplotlib
-seaborn
-reportlab
-folium
-streamlit-folium
-openpyxl
+streamlit>=1.30.0
+requests>=2.28.0
+pandas>=2.0.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+altair>=5.0.0
+plotly>=5.18.0
+streamlit-extras>=0.3.0
+reportlab>=4.0.0
+folium>=0.15.0
+streamlit-folium>=0.17.0
+openpyxl>=3.1.0
 # geopandas, shapely, fiona, pyogrio - opcionais para exportação geoespacial
 # (instalar manualmente se necessário: conda install geopandas)
+
