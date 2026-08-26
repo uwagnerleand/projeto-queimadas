@@ -43,20 +43,21 @@ ICON_FILE = os.path.join(ROOT_DIR, "assets", "icon.png")
 INPE_YEARS = [2020, 2021, 2022, 2024]
 
 # ==============================================================================
-# 🎨 CONFIGURAÇÃO DA PÁGINA
+# CONFIGURAÇÃO DA PÁGINA
 # ==============================================================================
 st.set_page_config(
     page_title="Projeto Queimadas Pro | Monitoramento Ambiental",
-    page_icon="🔥",
+    page_icon=LOGO_FILE if os.path.exists(LOGO_FILE) else "🔥",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # ==============================================================================
-# 💎 CSS DESIGN SYSTEM & ÍCONES (FONTAWESOME + MODERN GLASSMORPHISM)
+# CSS DESIGN SYSTEM & ÍCONES (FONTAWESOME + BOOTSTRAP ICONS + MODERN GLASSMORPHISM)
 # ==============================================================================
 st.html("""
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -348,7 +349,7 @@ li[aria-selected="true"] {
 
 
 # ==============================================================================
-# 📦 FUNÇÕES DE EXPORTAÇÃO SIG & TABULARES
+# FUNÇÕES DE EXPORTAÇÃO SIG & TABULARES
 # ==============================================================================
 
 
@@ -433,7 +434,7 @@ def exportar_excel(df: pd.DataFrame, ranking: pd.DataFrame) -> bytes:
 
 
 # ==============================================================================
-# 📥 CARREGAMENTO E INGESTÃO DE DADOS COM CACHE
+# CARREGAMENTO E INGESTÃO DE DADOS COM CACHE
 # ==============================================================================
 
 
@@ -502,31 +503,31 @@ def carregar_dados() -> pd.DataFrame:
 try:
     df_geral = carregar_dados()
 except Exception as exc:
-    st.error("❌ Não foi possível carregar os dados de monitoramento.")
+    st.error("Não foi possível carregar os dados de monitoramento.")
     st.exception(exc)
     st.stop()
 
 
 # ==============================================================================
-# 🎛️ SIDEBAR - FILTROS DINÂMICOS & CONTROLES
+# SIDEBAR - FILTROS DINÂMICOS & CONTROLES
 # ==============================================================================
 with st.sidebar:
     st.html("""
     <div style="text-align: center; padding: 1rem 0;">
-        <h2 style="color: white; margin: 0; font-size: 1.4rem; font-weight: 800;">
-            🔥 QUEIMADAS <span style="color: #38bdf8; font-size: 0.8rem; background: rgba(56, 189, 248, 0.2); padding: 2px 8px; border-radius: 8px;">PRO</span>
+        <h2 style="color: white; margin: 0; font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+            <i class="fa-solid fa-fire-flame-curved" style="color: #f97316;"></i> QUEIMADAS <span style="color: #38bdf8; font-size: 0.8rem; background: rgba(56, 189, 248, 0.2); padding: 2px 8px; border-radius: 8px;">PRO</span>
         </h2>
         <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 4px;">Monitoramento Satelital INPE</p>
     </div>
     <hr style="border-color: rgba(255,255,255,0.1); margin: 0.5rem 0 1.25rem 0;">
     """)
 
-    st.markdown("### 🎛️ Filtros de Consulta")
+    st.markdown("### <i class='fa-solid fa-sliders' style='color: #38bdf8;'></i> Filtros de Consulta", unsafe_allow_html=True)
 
     # 1. Filtro de Estado
     estados_disponiveis = sorted(df_geral["estado"].unique())
     estado_default_idx = estados_disponiveis.index("PARA") if "PARA" in estados_disponiveis else 0
-    estado_sel = st.selectbox("📍 Estado Federativo", estados_disponiveis, index=estado_default_idx)
+    estado_sel = st.selectbox("Estado Federativo (UF)", estados_disponiveis, index=estado_default_idx)
 
     df_estado = df_geral[df_geral["estado"] == estado_sel]
 
@@ -535,16 +536,16 @@ with st.sidebar:
     mun_default_idx = (
         municipios_disponiveis.index("OBIDOS") if "OBIDOS" in municipios_disponiveis else 0
     )
-    municipio_sel = st.selectbox("🏙️ Município", municipios_disponiveis, index=mun_default_idx)
+    municipio_sel = st.selectbox("Município Alvo", municipios_disponiveis, index=mun_default_idx)
 
     # 3. Filtro de Ano
     anos_disponiveis = sorted(df_geral["ano"].unique(), reverse=True)
-    ano_sel = st.selectbox("📅 Ano de Referência", anos_disponiveis, index=0)
+    ano_sel = st.selectbox("Ano de Referência", anos_disponiveis, index=0)
 
     st.html("<hr style='border-color: rgba(255,255,255,0.1); margin: 1rem 0;'>")
 
     # Botão de Ação Rápida
-    if st.button("🔄 Atualizar / Limpar Cache", use_container_width=True):
+    if st.button("Atualizar / Limpar Cache", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
 
@@ -571,7 +572,7 @@ df_municipio_historico = df_geral[
 
 
 # ==============================================================================
-# 🌟 HERO HEADER PRINCIPAL
+# HERO HEADER PRINCIPAL
 # ==============================================================================
 total_focos = len(df_filtrado)
 total_estado = len(df_estado_ano)
@@ -608,7 +609,7 @@ st.html(f"""
 
 
 # ==============================================================================
-# 📊 CARDS DE MÉTRICAS EXECUTIVAS
+# CARDS DE MÉTRICAS EXECUTIVAS
 # ==============================================================================
 # Cálculo de variação YoY em relação ao ano anterior
 ano_anterior = ano_sel - 1
@@ -701,16 +702,16 @@ st.html(f"""
 
 
 # ==============================================================================
-# 📑 ABAS DE NAVEGAÇÃO E ANÁLISE INTERATIVA
+# ABAS DE NAVEGAÇÃO E ANÁLISE INTERATIVA
 # ==============================================================================
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
     [
-        "📊 Visão Geral & KPIs",
-        "📈 Análise Temporal & Sazonal",
-        "🗺️ GeoAnalytics & Mapa",
-        "🏆 Ranking & Comparativos",
-        "📋 Base de Dados & SIG",
-        "📑 Relatório Oficial PDF",
+        "Visão Geral & KPIs",
+        "Análise Temporal & Sazonal",
+        "GeoAnalytics & Mapa",
+        "Ranking & Comparativos",
+        "Base de Dados & SIG",
+        "Relatório Oficial PDF",
     ]
 )
 
@@ -722,7 +723,7 @@ with tab1:
     col_g1, col_g2 = st.columns([3, 2])
 
     with col_g1:
-        st.markdown("#### 📊 Distribuição Mensal de Focos de Calor")
+        st.markdown("#### <i class='fa-solid fa-chart-column' style='color: #2563eb;'></i> Distribuição Mensal de Focos de Calor", unsafe_allow_html=True)
         if not df_filtrado.empty:
             df_mes = df_filtrado.groupby("mes").size().reset_index(name="focos")
             meses_map = {
@@ -777,7 +778,7 @@ with tab1:
             st.info("Nenhum dado registrado para o período selecionado.")
 
     with col_g2:
-        st.markdown("#### ⏱️ Indicador de Intensidade e Risco")
+        st.markdown("#### <i class='fa-solid fa-gauge-high' style='color: #ea580c;'></i> Indicador de Intensidade e Risco", unsafe_allow_html=True)
         max_gauge = max(total_focos * 1.5, 1000)
         fig_gauge = go.Figure(
             go.Indicator(
@@ -809,11 +810,11 @@ with tab1:
 
     # Diagnóstico e Destaques Ambientais
     st.html("""
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 14px; padding: 1.25rem 1.5rem; margin-top: 1rem;">
+    <div style="background: white; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 1.25rem 1.5rem; margin-top: 1rem;">
         <h4 style="margin: 0 0 0.5rem 0; color: #0f172a; font-size: 1.05rem;">
-            <i class="fa-solid fa-bullhorn" style="color: #3b82f6;"></i> Diagnóstico Rápido de Gestão Ambiental
+            <i class="fa-solid fa-bullhorn" style="color: #2563eb;"></i> Diagnóstico Rápido de Gestão Ambiental
         </h4>
-        <p style="margin: 0; color: #475569; font-size: 0.9rem; line-height: 1.6;">
+        <p style="margin: 0; color: #334155; font-size: 0.9rem; line-height: 1.6;">
             Os registros indicam que a maior concentração de focos no município ocorre no período do segundo semestre (estiagem amazônica).
             Recomenda-se o fortalecimento preventivo das brigadas de incêndio e monitoramento contínuo das áreas de maior densidade de calor.
         </p>
@@ -825,7 +826,7 @@ with tab1:
 # TAB 2: ANÁLISE TEMPORAL & SAZONALIDADE
 # ------------------------------------------------------------------------------
 with tab2:
-    st.markdown("#### 📈 Série Temporal Histórica de Queimadas")
+    st.markdown("#### <i class='fa-solid fa-chart-line' style='color: #2563eb;'></i> Série Temporal Histórica de Queimadas", unsafe_allow_html=True)
 
     col_t1, col_t2 = st.columns([3, 1])
     with col_t1:
@@ -879,7 +880,7 @@ with tab2:
         st.plotly_chart(fig_time, use_container_width=True)
 
     # Comparativo Interanual Mês a Mês
-    st.markdown("#### 🔄 Comparativo de Sazonalidade por Ano (Mês a Mês)")
+    st.markdown("#### <i class='fa-solid fa-arrows-split-up-and-left' style='color: #7c3aed;'></i> Comparativo de Sazonalidade por Ano (Mês a Mês)", unsafe_allow_html=True)
     if not df_municipio_historico.empty:
         df_sazonal = df_municipio_historico.groupby(["ano", "mes"]).size().reset_index(name="focos")
         meses_labels = {
@@ -921,7 +922,7 @@ with tab2:
 # TAB 3: GEOANALYTICS & MAPA INTERATIVO AVANÇADO
 # ------------------------------------------------------------------------------
 with tab3:
-    st.markdown("#### 🗺️ Mapeamento Espacial Interativo")
+    st.markdown("#### <i class='fa-solid fa-map-location-dot' style='color: #059669;'></i> Mapeamento Espacial Interativo", unsafe_allow_html=True)
 
     df_mapa = df_filtrado.dropna(subset=["latitude", "longitude"])
 
@@ -989,7 +990,7 @@ with tab3:
 # TAB 4: RANKING & COMPARATIVOS MUNICIPAIS
 # ------------------------------------------------------------------------------
 with tab4:
-    st.markdown(f"#### 🏆 Ranking de Queimadas no Estado do {estado_sel} ({ano_sel})")
+    st.markdown(f"#### <i class='fa-solid fa-trophy' style='color: #d97706;'></i> Ranking de Queimadas no Estado do {estado_sel} ({ano_sel})", unsafe_allow_html=True)
 
     ranking_estado = df_estado_ano.groupby("municipio").size().reset_index(name="focos")
     ranking_estado = ranking_estado.sort_values("focos", ascending=False).reset_index(drop=True)
@@ -1007,13 +1008,13 @@ with tab4:
                 ranking_estado[ranking_estado["municipio"] == municipio_sel]["focos"].values[0]
             )
             st.html(f"""
-            <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 1.25rem; border: 1px solid #bfdbfe; display: flex; align-items: center; gap: 1rem;">
-                <div style="font-size: 2rem;">🏆</div>
+            <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 1.25rem; border: 1.5px solid #bfdbfe; display: flex; align-items: center; gap: 1.25rem;">
+                <div style="font-size: 2.2rem; color: #d97706;"><i class="fa-solid fa-trophy"></i></div>
                 <div>
-                    <span style="font-size: 1.1rem; font-weight: 700; color: #1e40af;">
+                    <span style="font-size: 1.1rem; font-weight: 800; color: #1e40af;">
                         {municipio_sel} está na posição #{pos_atual} no ranking estadual com {focos_atual:,} focos detectados.
                     </span>
-                    <p style="margin: 0; color: #3b82f6; font-size: 0.85rem;">Representa {percentual_estado:.2f}% de todos os focos no estado do {estado_sel} em {ano_sel}.</p>
+                    <p style="margin: 0; color: #1e3a8a; font-size: 0.88rem; font-weight: 600;">Representa {percentual_estado:.2f}% de todos os focos no estado do {estado_sel} em {ano_sel}.</p>
                 </div>
             </div>
             """)
@@ -1041,7 +1042,7 @@ with tab4:
             st.plotly_chart(fig_rank, use_container_width=True)
 
         with col_r2:
-            st.markdown("##### 🥇 Top 10 Municípios")
+            st.markdown("##### <i class='fa-solid fa-ranking-star' style='color: #d97706;'></i> Top 10 Municípios", unsafe_allow_html=True)
             top10_display = top10_df[["posicao", "municipio", "focos"]].copy()
             top10_display.columns = ["Posição", "Município", "Focos"]
             st.dataframe(top10_display, hide_index=True, use_container_width=True, height=360)
@@ -1051,23 +1052,23 @@ with tab4:
 # TAB 5: CENTRAL DE DADOS & EXPORTAÇÃO SIG
 # ------------------------------------------------------------------------------
 with tab5:
-    st.markdown("#### 📋 Base de Dados Completa e Exportação")
+    st.markdown("#### <i class='fa-solid fa-database' style='color: #2563eb;'></i> Base de Dados Completa e Exportação", unsafe_allow_html=True)
     st.info(
-        f"📊 Foram encontrados **{len(df_filtrado):,}** registros para {municipio_sel} ({estado_sel}) no ano {ano_sel}."
+        f"Foram encontrados **{len(df_filtrado):,}** registros para {municipio_sel} ({estado_sel}) no ano {ano_sel}."
     )
 
     st.dataframe(df_filtrado, height=380, use_container_width=True, hide_index=True)
 
     st.markdown("---")
-    st.markdown("### 📥 Central de Downloads Multiformato")
+    st.markdown("### <i class='fa-solid fa-download' style='color: #059669;'></i> Central de Downloads Multiformato", unsafe_allow_html=True)
 
     col_e1, col_e2 = st.columns(2)
 
     with col_e1:
-        st.markdown("##### 📄 Formatos Tabulares")
+        st.markdown("##### <i class='fa-solid fa-file-lines' style='color: #2563eb;'></i> Formatos Tabulares", unsafe_allow_html=True)
         csv_bytes = exportar_csv(df_filtrado)
         st.download_button(
-            label="📥 Baixar em formato CSV (UTF-8)",
+            label="Baixar em formato CSV (UTF-8)",
             data=csv_bytes,
             file_name=f"queimadas_{municipio_sel.lower()}_{ano_sel}.csv",
             mime="text/csv",
@@ -1078,7 +1079,7 @@ with tab5:
             df_filtrado, ranking_estado if not ranking_estado.empty else pd.DataFrame()
         )
         st.download_button(
-            label="📊 Baixar Planilha Excel (.xlsx)",
+            label="Baixar Planilha Excel (.xlsx)",
             data=excel_bytes,
             file_name=f"queimadas_{municipio_sel.lower()}_{ano_sel}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -1086,14 +1087,14 @@ with tab5:
         )
 
     with col_e2:
-        st.markdown("##### 🗺️ Formatos Geoespaciais (SIG / GIS)")
+        st.markdown("##### <i class='fa-solid fa-earth-americas' style='color: #059669;'></i> Formatos Geoespaciais (SIG / GIS)", unsafe_allow_html=True)
         if GEOESPACIAL_DISPONIVEL:
             try:
                 gdf_export = criar_geodataframe(df_filtrado)
                 geojson_bytes = exportar_geojson(gdf_export)
                 if geojson_bytes:
                     st.download_button(
-                        label="🌍 Baixar GeoJSON (QGIS / WebGIS)",
+                        label="Baixar GeoJSON (QGIS / WebGIS)",
                         data=geojson_bytes,
                         file_name=f"queimadas_{municipio_sel.lower()}_{ano_sel}.geojson",
                         mime="application/geo+json",
@@ -1103,7 +1104,7 @@ with tab5:
                 shp_bytes = exportar_shapefile_zip(gdf_export)
                 if shp_bytes:
                     st.download_button(
-                        label="🗂️ Baixar Shapefile Compactado (.ZIP)",
+                        label="Baixar Shapefile Compactado (.ZIP)",
                         data=shp_bytes,
                         file_name=f"queimadas_{municipio_sel.lower()}_{ano_sel}.zip",
                         mime="application/zip",
@@ -1112,14 +1113,14 @@ with tab5:
             except Exception as e:
                 st.warning(f"Exportação SIG indisponível: {e}")
         else:
-            st.info("💡 Módulos de exportação SIG (GeoJSON / Shapefile) requerem Geopandas.")
+            st.info("Módulos de exportação SIG (GeoJSON / Shapefile) requerem Geopandas.")
 
 
 # ------------------------------------------------------------------------------
 # TAB 6: RELATÓRIO TÉCNICO OFICIAL PDF
 # ------------------------------------------------------------------------------
 with tab6:
-    st.markdown("#### 📄 Relatório Técnico Oficial de Monitoramento (PDF)")
+    st.markdown("#### <i class='fa-solid fa-file-pdf' style='color: #dc2626;'></i> Relatório Técnico Oficial de Monitoramento (PDF)", unsafe_allow_html=True)
     st.markdown("""
     Gere e baixe automaticamente um relatório técnico em padrão oficial com capa governamental,
     introdução ambiental, análises descritivas, gráficos de alta resolução (300 DPI) e recomendações técnicas.
@@ -1138,10 +1139,10 @@ with tab6:
             pdf_data = f_pdf.read()
 
         st.success(
-            f"✅ Relatório Técnico Oficial compilado e disponível para download ({len(pdf_data) / 1024 / 1024:.2f} MB)."
+            f"Relatório Técnico Oficial compilado e disponível para download ({len(pdf_data) / 1024 / 1024:.2f} MB)."
         )
         st.download_button(
-            label=f"📄 Download do Relatório Oficial ({municipio_sel}.pdf)",
+            label=f"Download do Relatório Oficial ({municipio_sel}.pdf)",
             data=pdf_data,
             file_name=f"relatorio_tecnico_queimadas_{municipio_sel.lower()}_{ano_sel}.pdf",
             mime="application/pdf",
@@ -1154,7 +1155,7 @@ with tab6:
 
 
 # ==============================================================================
-# 🦶 RODAPÉ OFICIAL
+# RODAPÉ OFICIAL
 # ==============================================================================
 st.markdown("---")
 st.html("""

@@ -57,8 +57,8 @@ def executar_pipeline(
     """
     inicio = time.time()
     logger.info("=========================================================")
-    logger.info("🚀 INICIANDO PIPELINE DE DADOS - PROJETO QUEIMADAS")
-    logger.info("📍 Estado Alvo: %s | Município Alvo: %s", estado, municipio)
+    logger.info("[INICIO] INICIANDO PIPELINE DE DADOS - PROJETO QUEIMADAS")
+    logger.info("[INFO] Estado Alvo: %s | Município Alvo: %s", estado, municipio)
     logger.info("=========================================================")
 
     if anos is None:
@@ -70,7 +70,7 @@ def executar_pipeline(
         os.makedirs(dados_brutos_dir, exist_ok=True)
         for ano in anos:
             try:
-                logger.info("📥 Coletando dados para o ano %d...", ano)
+                logger.info("[COLETA] Baixando dados para o ano %d...", ano)
                 df_ano = carregar_dados_anual_zip(ano)
                 salvar_dataframe(df_ano, f"queimadas_{ano}", dados_brutos_dir)
             except Exception as err:
@@ -152,9 +152,9 @@ def executar_pipeline(
 
     duracao = time.time() - inicio
     logger.info("=========================================================")
-    logger.info("✨ PIPELINE EXECUTADO COM SUCESSO EM %.2f SEGUNDOS!", duracao)
-    logger.info("📄 Relatório gerado: %s", relatorio_pdf)
-    logger.info("📊 Gráficos disponíveis em: %s", graficos_dir)
+    logger.info("[SUCESSO] PIPELINE EXECUTADO COM SUCESSO EM %.2f SEGUNDOS!", duracao)
+    logger.info("[RELATORIO] Arquivo gerado: %s", relatorio_pdf)
+    logger.info("[GRAFICOS] Disponíveis em: %s", graficos_dir)
     logger.info("=========================================================")
     return True
 
