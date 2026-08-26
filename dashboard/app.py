@@ -62,34 +62,153 @@ st.html("""
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-    --primary-color: #3b82f6;
-    --primary-gradient: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
-    --fire-gradient: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
-    --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-    --card-bg: rgba(255, 255, 255, 0.95);
-    --card-border: #e2e8f0;
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --shadow-soft: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
-    --shadow-hover: 0 12px 28px -4px rgba(15, 23, 42, 0.12);
+    --primary-color: #2563eb;
+    --primary-gradient: linear-gradient(135deg, #1d4ed8 0%, #4f46e5 100%);
+    --fire-gradient: linear-gradient(135deg, #dc2626 0%, #ea580c 100%);
+    --success-gradient: linear-gradient(135deg, #059669 0%, #047857 100%);
+    --warning-gradient: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+    --card-bg: #ffffff;
+    --card-border: #cbd5e1;
+    --text-dark: #0f172a;
+    --text-light: #ffffff;
+    --shadow-soft: 0 4px 20px -2px rgba(15, 23, 42, 0.08);
+    --shadow-hover: 0 12px 28px -4px rgba(15, 23, 42, 0.15);
 }
 html, body, [class*="css"] {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
 .stApp {
-    background: #f8fafc;
+    background-color: #f8fafc;
+    color: #0f172a;
 }
+
+/* ==========================================================================
+   1. REGRA UNIVERSAL: CAIXAS BRANCAS/CLARAS -> TEXTO PRETO/ESCURO
+   ========================================================================== */
+/* Títulos e textos gerais da área principal */
+.stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6 {
+    color: #0f172a !important;
+}
+.stApp p, .stApp span, .stApp div, .stApp label {
+    color: #0f172a;
+}
+
+/* Cards de Métricas (Caixa Branca com Borda) */
+.glass-card {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 16px !important;
+    padding: 1.35rem 1.5rem !important;
+    box-shadow: var(--shadow-soft) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+.glass-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+    border-color: #94a3b8 !important;
+}
+.metric-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+.metric-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #475569 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.metric-icon-box {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+.metric-val {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0f172a !important;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+.metric-footer {
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.trend-up { color: #dc2626 !important; }
+.trend-down { color: #16a34a !important; }
+.trend-neutral { color: #475569 !important; }
+
+/* Abas (Tab List - Fundo Branco com Texto Escuro) */
+.stTabs [data-baseweb="tab-list"] {
+    background: #ffffff !important;
+    border-radius: 14px !important;
+    padding: 0.35rem !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    border: 1.5px solid #cbd5e1 !important;
+    gap: 0.25rem !important;
+}
+.stTabs [data-baseweb="tab"] {
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    color: #334155 !important;
+    padding: 0.6rem 1.25rem !important;
+    transition: all 0.2s ease !important;
+}
+/* Aba Ativa: Caixa Escura/Azul com Texto Branco */
+.stTabs [aria-selected="true"] {
+    background: linear-gradient(135deg, #1d4ed8 0%, #312e81 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3) !important;
+}
+.stTabs [aria-selected="true"] * {
+    color: #ffffff !important;
+}
+
+/* Tabelas e Dataframes: Fundo Claro com Texto Preto */
+[data-testid="stDataFrame"] {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 12px !important;
+}
+[data-testid="stDataFrame"] * {
+    color: #0f172a !important;
+}
+
+/* Campos de seleção na área principal (Caixa Branca com Texto Preto) */
+.stMainBlockContainer div[data-baseweb="select"] > div {
+    background-color: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+.stMainBlockContainer div[data-baseweb="select"] * {
+    color: #0f172a !important;
+}
+
+/* ==========================================================================
+   2. REGRA UNIVERSAL: CAIXAS PRETAS/ESCURAS -> TEXTO BRANCO
+   ========================================================================== */
+/* Hero Banner (Caixa Preta/Azul Profundo com Texto Branco) */
 .hero-banner {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #312e81 100%);
+    background: linear-gradient(135deg, #090d16 0%, #0f172a 60%, #1e1b4b 100%) !important;
     border-radius: 18px;
     padding: 2rem 2.5rem;
-    color: white;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+    color: #ffffff !important;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
     position: relative;
     overflow: hidden;
     margin-bottom: 1.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 .hero-banner::after {
     content: '';
@@ -98,7 +217,7 @@ html, body, [class*="css"] {
     right: -20%;
     width: 400px;
     height: 400px;
-    background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.3) 0%, transparent 70%);
     border-radius: 50%;
     pointer-events: none;
 }
@@ -114,129 +233,62 @@ html, body, [class*="css"] {
 }
 .hero-subtitle {
     font-size: 1rem;
-    color: #94a3b8 !important;
-    margin-top: 0.5rem;
-    font-weight: 500;
-}
-.metric-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.25rem;
-    margin-bottom: 1.5rem;
-}
-.glass-card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 16px;
-    padding: 1.35rem 1.5rem;
-    box-shadow: var(--shadow-soft);
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-}
-.glass-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-hover);
-    border-color: #cbd5e1;
-}
-.metric-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.75rem;
-}
-.metric-title {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-.metric-icon-box {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-}
-.metric-val {
-    font-size: 1.85rem;
-    font-weight: 800;
-    color: var(--text-main);
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-}
-.metric-footer {
-    font-size: 0.825rem;
+    color: #cbd5e1 !important;
     margin-top: 0.5rem;
     font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
 }
-.trend-up { color: #ef4444; }
-.trend-down { color: #10b981; }
-.trend-neutral { color: #64748b; }
-.badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.35rem 0.85rem;
-    border-radius: 9999px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-}
-.badge-critical { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-.badge-high { background: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
-.badge-medium { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
-.badge-low { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+
+/* Barra Lateral (Sidebar - Caixa Escura/Preta com Texto Branco) */
 section[data-testid="stSidebar"] {
     background: linear-gradient(180deg, #090d16 0%, #0f172a 100%) !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 section[data-testid="stSidebar"] h1,
 section[data-testid="stSidebar"] h2,
 section[data-testid="stSidebar"] h3,
 section[data-testid="stSidebar"] p,
 section[data-testid="stSidebar"] span,
-section[data-testid="stSidebar"] label {
+section[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] b {
     color: #f8fafc !important;
 }
 section[data-testid="stSidebar"] .stSelectbox label {
     font-weight: 700 !important;
     font-size: 0.92rem !important;
-    color: #cbd5e1 !important;
+    color: #e2e8f0 !important;
     margin-bottom: 0.25rem !important;
 }
-/* Estilização das caixas de seleção na sidebar (alto contraste) */
+
+/* Caixas de Seleção na Sidebar (Caixa Escura Grafite com Texto Branco) */
 section[data-testid="stSidebar"] div[data-baseweb="select"] > div {
     background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
+    border: 1.5px solid #475569 !important;
     border-radius: 10px !important;
     color: #ffffff !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
 }
 section[data-testid="stSidebar"] div[data-baseweb="select"] * {
     color: #ffffff !important;
 }
 section[data-testid="stSidebar"] div[data-baseweb="select"] svg {
-    fill: #94a3b8 !important;
+    fill: #cbd5e1 !important;
 }
-/* Menus suspensos e opções (dropdown popover) */
+
+/* Menus Suspensos / Dropdown Popovers (Caixa Escura com Texto Branco) */
 div[data-baseweb="popover"] ul,
 div[data-baseweb="menu"],
 ul[role="listbox"] {
     background-color: #0f172a !important;
-    border: 1px solid #334155 !important;
+    border: 1.5px solid #334155 !important;
     border-radius: 10px !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
 }
 div[data-baseweb="popover"] li,
 div[data-baseweb="menu"] li,
 li[role="option"] {
     color: #f8fafc !important;
     background-color: #0f172a !important;
+    font-weight: 500 !important;
 }
 div[data-baseweb="popover"] li:hover,
 div[data-baseweb="menu"] li:hover,
@@ -245,54 +297,52 @@ li[aria-selected="true"] {
     background-color: #2563eb !important;
     color: #ffffff !important;
 }
-.stTabs [data-baseweb="tab-list"] {
-    background: white;
-    border-radius: 14px;
-    padding: 0.35rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    border: 1px solid #e2e8f0;
-    gap: 0.25rem;
-}
-.stTabs [data-baseweb="tab"] {
-    border-radius: 10px;
-    font-weight: 600;
-    color: #475569;
-    padding: 0.6rem 1.25rem;
-    transition: all 0.2s ease;
-}
-.stTabs [aria-selected="true"] {
-    background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%) !important;
-    color: white !important;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-}
+
+/* Botões (Caixas com Gradientes Escuros/Vibrantes com Texto Branco) */
 .stDownloadButton > button {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-    color: white !important;
+    background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+    color: #ffffff !important;
     border: none !important;
     border-radius: 12px !important;
     font-weight: 700 !important;
     padding: 0.75rem 1.5rem !important;
     transition: all 0.2s ease !important;
-    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3) !important;
+    box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35) !important;
 }
 .stDownloadButton > button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4) !important;
+    box-shadow: 0 6px 20px rgba(5, 150, 105, 0.45) !important;
 }
 .stButton > button {
-    background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%) !important;
-    color: white !important;
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+    color: #ffffff !important;
     border: none !important;
     border-radius: 12px !important;
     font-weight: 700 !important;
     padding: 0.75rem 1.5rem !important;
-    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3) !important;
+    box-shadow: 0 4px 14px rgba(29, 78, 216, 0.35) !important;
     transition: all 0.2s ease !important;
 }
 .stButton > button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4) !important;
+    box-shadow: 0 6px 20px rgba(29, 78, 216, 0.45) !important;
 }
+
+/* Badges de Alerta (Caixas Claras com Texto Escuro de Alto Contraste) */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+}
+.badge-critical { background: #fee2e2 !important; color: #7f1d1d !important; border: 1.5px solid #fca5a5 !important; }
+.badge-high { background: #ffedd5 !important; color: #7c2d12 !important; border: 1.5px solid #fdba74 !important; }
+.badge-medium { background: #fef3c7 !important; color: #78350f !important; border: 1.5px solid #fcd34d !important; }
+.badge-low { background: #dcfce7 !important; color: #14532d !important; border: 1.5px solid #86efac !important; }
 </style>
 """)
 
@@ -500,10 +550,10 @@ with st.sidebar:
 
     # Informações Técnicas na Sidebar
     st.html("""
-    <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 12px; margin-top: 1rem; border: 1px solid rgba(255, 255, 255, 0.08);">
-        <p style="font-size: 0.75rem; color: #94a3b8; margin: 0;"><i class="fa-solid fa-satellite-dish"></i> <b>Fonte:</b> INPE / BDQueimadas</p>
-        <p style="font-size: 0.75rem; color: #94a3b8; margin: 4px 0 0 0;"><i class="fa-solid fa-clock"></i> <b>Atualização:</b> Satélite de Ref.</p>
-        <p style="font-size: 0.75rem; color: #94a3b8; margin: 4px 0 0 0;"><i class="fa-solid fa-shield-halved"></i> <b>Status:</b> Operacional</p>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 12px; margin-top: 1rem; border: 1.5px solid #334155;">
+        <p style="font-size: 0.8rem; color: #f8fafc; margin: 0;"><i class="fa-solid fa-satellite-dish" style="color: #38bdf8;"></i> <b style="color: #ffffff;">Fonte:</b> INPE / BDQueimadas</p>
+        <p style="font-size: 0.8rem; color: #f8fafc; margin: 6px 0 0 0;"><i class="fa-solid fa-clock" style="color: #38bdf8;"></i> <b style="color: #ffffff;">Atualização:</b> Satélite de Ref.</p>
+        <p style="font-size: 0.8rem; color: #f8fafc; margin: 6px 0 0 0;"><i class="fa-solid fa-shield-halved" style="color: #10b981;"></i> <b style="color: #ffffff;">Status:</b> Operacional</p>
     </div>
     """)
 
