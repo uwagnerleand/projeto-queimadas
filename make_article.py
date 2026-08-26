@@ -440,9 +440,9 @@ def create_document():
     table_cat_hdr = ["Categoria Territorial Fundiária", "Total de Focos (2020–2026)", "Participação Relativa (%)", "Territórios Mapeados (27 Áreas Oficiais)"]
     table_cat_rows = [
         ["Projetos de Assentamento (PA/PAE/PAC/PDS)", "2.499", "44,46%", "PAE Cachoery (619), PAE Paru (373), PAE Vale do Salgado (343), PA Vale do Açaí (289), PDS Maloca (265), PA Curumu II (153), PA Cipoal (108), PA Repartimento (107), PAE Cacoal Grande, etc."],
-        ["Unidades de Conservação (UC)", "1.706", "30,35%", "Parque do Tumucumaque (1.356), FLORESTA ESTADUAL DO TROMBETAS (348), ESEC Grão-Pará (2) e FLOTA Paru"],
         ["Áreas Quilombolas (PAQ)", "1.415", "25,17%", "PAQ ESPECIAL QUILOMBOLA ÁREA DAS CABECEIRAS (1.071) e PAQ ESPECIAL QUILOMBOLA EREPECURÚ (344)"],
-        ["Terras Indígenas (TI)", "1", "0,02%", "Zoe (Terra Indígena Zo'é)"],
+        ["Terras Indígenas / Áreas Indígenas (TI)", "1.357", "24,14%", "Parque do Tumucumaque (1.356) e Zoe (1)"],
+        ["Unidades de Conservação (UC)", "350", "6,23%", "FLORESTA ESTADUAL DO TROMBETAS (348), ESEC Grão-Pará (2) e FLOTA Paru (0)"],
         ["Total Consolidado", "5.621", "100,00%", "27 Territórios Oficiais de Óbidos (PA)"]
     ]
     add_table_custom(table_cat_hdr, table_cat_rows, [1.5, 1.1, 1.1, 2.5],
@@ -458,7 +458,7 @@ def create_document():
                "Figura 13 – Participação percentual de queimadas por destinação fundiária em Óbidos. Fonte: Gerado pelo pipeline scripts/graficos.py (2026).",
                width_inches=5.2)
 
-    add_p("Os dados revelam que os Projetos de Assentamento (PAEs e PAs) e as Áreas Quilombolas (PAQ Cabeceiras e PAQ Erepecurú) concentram a maior parte dos focos antrópicos, enquanto o Parque do Tumucumaque e a FLOTA Trombetas demandam monitoramento aéreo preventivo constante nas zonas de amortecimento.")
+    add_p("Os dados revelam que os Projetos de Assentamento (PAEs e PAs) e as Áreas Quilombolas (PAQ Cabeceiras e PAQ Erepecurú) concentram a maior parte dos focos antrópicos, enquanto as Áreas Indígenas ao norte (Parque do Tumucumaque e TI Zo'é) e a FLOTA Trombetas demandam monitoramento aéreo preventivo constante nas zonas de amortecimento.")
 
     # Figure 13: top10_2024.png
     add_p("A Figura 13 apresenta o ranking gráfico dos 10 municípios mais afetados no ano de 2024, destacando São Félix do Xingu e Altamira no topo do estado.")

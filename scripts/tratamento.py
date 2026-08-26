@@ -211,14 +211,14 @@ def classificar_territorio_obidos(lat: float, lon: float) -> Tuple[str, str]:
     except (ValueError, TypeError):
         return ("Área Privada / Outras Áreas", "Área Privada / Não Mapeada")
 
-    # 1. Unidades de Conservação e Terra Indígena no Norte
+    # 1. Terras Indígenas e Unidades de Conservação no Norte
     if lat_f >= 1.85:
-        return ("Unidade de Conservação (UC)", "Parque do Tumucumaque")
+        return ("Terra Indígena (TI)", "Parque do Tumucumaque")
     if lat_f >= 0.7 and lat_f < 1.85:
         if lon_f >= -55.5:
             return ("Unidade de Conservação (UC)", "ESTAÇÃO ECOLOGICA DO GRÃO PARÁ")
         else:
-            return ("Unidade de Conservação (UC)", "Parque do Tumucumaque")
+            return ("Terra Indígena (TI)", "Parque do Tumucumaque")
     if lat_f >= 0.0 and lat_f < 0.7:
         if lon_f >= -55.35:
             return ("Unidade de Conservação (UC)", "FLORESTA ESTADUAL DO PARU")
