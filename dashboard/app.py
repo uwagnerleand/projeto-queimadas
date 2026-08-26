@@ -39,7 +39,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
 PARA_FILE = os.path.join(ROOT_DIR, "dados", "tratado", "para.csv")
 GERAL_FILE = os.path.join(ROOT_DIR, "dados", "tratado", "queimadas_tratado.csv")
-DATA_FILE = PARA_FILE if os.path.exists(PARA_FILE) else GERAL_FILE
+DATA_FILE = GERAL_FILE if os.path.exists(GERAL_FILE) else PARA_FILE
 TERR_FILE = os.path.join(ROOT_DIR, "dados", "tratado", "obidos_territorios.csv")
 LOGO_FILE = os.path.join(ROOT_DIR, "assets", "logo_q.png")
 ICON_FILE = os.path.join(ROOT_DIR, "assets", "icon.png")
@@ -507,19 +507,23 @@ def carregar_dados_inpe_ano(ano: int) -> pd.DataFrame:
     return df
 
 
-@st.cache_data(ttl=3600, show_spinner="Carregando e indexando dados de queimadas (2020–2026)...")
+@st.cache_data(ttl=3600, show_spinner="Carregando e indexando dados de queimadas dos 27 estados (2020–2026)...")
 def carregar_dados() -> pd.DataFrame:
-    """Carrega dados tratados locais ou aciona download direto com fallback."""
+    """Carrega dados tratados locais de todo o Brasil (todos os 27 estados) ou aciona download direto."""
     df = None
     if os.path.exists(DATA_FILE):
         try:
-            df_temp = pd.read_csv(DATA_FILE, low_memory=False)
-            if ("data" in df_temp.columns or "data_pas" in df_temp.columns or "datahora" in df_temp.columns) and len(df_temp) > 100:
-                df = df_temp
+            cols_disponiveis = pd.read_csv(DATA_FILE, nrows=2).columns.str.lower().str.strip().tolist()
+            cols_desejadas = [c for c in ['latitude', 'longitude', 'lat', 'lon', 'estado', 'municipio', 'bioma', 'data', 'ano', 'mes', 'data_pas', 'datahora', 'data_hora_gmt', 'risco_fogo', 'frp'] if c in cols_disponiveis]
+            
+            df = pd.read_csv(DATA_FILE, usecols=cols_desejadas if len(cols_desejadas) >= 5 else None, low_memory=False)
         except Exception:
-            df = None
+            try:
+                df = pd.read_csv(DATA_FILE, low_memory=False)
+            except Exception:
+                df = None
 
-    if df is None:
+    if df is None or len(df) == 0:
         dfs = []
         for ano in INPE_YEARS:
             try:
@@ -531,7 +535,7 @@ def carregar_dados() -> pd.DataFrame:
     df = df.rename(columns={"lat": "latitude", "lon": "longitude", "long": "longitude"})
 
     col_data = (
-        "datahora" if "datahora" in df.columns else "data" if "data" in df.columns else "data_pas"
+        "datahora" if "datahora" in df.columns else "data" if "data" in df.columns else "data_pas" if "data_pas" in df.columns else "data_hora_gmt"
     )
     df["data"] = pd.to_datetime(df[col_data], errors="coerce")
     df = df.dropna(subset=["data"])
@@ -574,8 +578,16 @@ with st.sidebar:
 
     st.markdown("### :material/tune: Filtros de Consulta")
 
-    # 1. Filtro de Estado
-    estados_disponiveis = sorted(df_geral["estado"].unique())
+    # 1. Filtro de Estado (Todos os 27 Estados da Federação)
+    estados_brasil = [
+        "ACRE", "ALAGOAS", "AMAPA", "AMAZONAS", "BAHIA", "CEARA", "DISTRITO FEDERAL",
+        "ESPIRITO SANTO", "GOIAS", "MARANHAO", "MATO GROSSO", "MATO GROSSO DO SUL",
+        "MINAS GERAIS", "PARA", "PARAIBA", "PARANA", "PERNAMBUCO", "PIAUI",
+        "RIO DE JANEIRO", "RIO GRANDE DO NORTE", "RIO GRANDE DO SUL", "RONDONIA",
+        "RORAIMA", "SANTA CATARINA", "SAO PAULO", "SERGIPE", "TOCANTINS"
+    ]
+    estados_presentes = sorted([e for e in df_geral["estado"].dropna().unique() if e])
+    estados_disponiveis = sorted(list(set(estados_presentes + estados_brasil)))
     estado_default_idx = estados_disponiveis.index("PARA") if "PARA" in estados_disponiveis else 0
     estado_sel = st.selectbox("Estado Federativo (UF)", estados_disponiveis, index=estado_default_idx)
 
