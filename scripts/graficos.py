@@ -25,16 +25,20 @@ logging.basicConfig(
 )
 logger = logging.getLogger("queimadas.graficos")
 
-# Configurações globais de estilo
+# Configurações globais de estilo de alto contraste
 plt.style.use(
     "seaborn-v0_8-whitegrid" if "seaborn-v0_8-whitegrid" in plt.style.available else "default"
 )
 plt.rcParams.update(
     {
         "font.sans-serif": ["DejaVu Sans", "Arial", "Helvetica"],
-        "axes.edgecolor": "#cbd5e1",
-        "axes.linewidth": 0.8,
-        "grid.color": "#f1f5f9",
+        "text.color": "#000000",
+        "axes.labelcolor": "#000000",
+        "xtick.color": "#000000",
+        "ytick.color": "#000000",
+        "axes.edgecolor": "#000000",
+        "axes.linewidth": 1.0,
+        "grid.color": "#e2e8f0",
         "grid.linestyle": "--",
     }
 )
@@ -61,11 +65,11 @@ def salvar_grafico_barra(
     fig, ax = plt.subplots(figsize=(10, 5), dpi=300)
     serie.plot(kind="bar", ax=ax, color=cor, edgecolor="none", width=0.7)
 
-    ax.set_title(titulo, fontsize=14, fontweight="bold", pad=15, color="#0f172a")
-    ax.set_xlabel(xlabel, fontsize=11, fontweight="600", labelpad=10, color="#334155")
-    ax.set_ylabel(ylabel, fontsize=11, fontweight="600", labelpad=10, color="#334155")
-    ax.tick_params(axis="x", rotation=0, labelsize=10)
-    ax.tick_params(axis="y", labelsize=10)
+    ax.set_title(titulo, fontsize=14, fontweight="bold", pad=15, color="#000000")
+    ax.set_xlabel(xlabel, fontsize=11, fontweight="bold", labelpad=10, color="#000000")
+    ax.set_ylabel(ylabel, fontsize=11, fontweight="bold", labelpad=10, color="#000000")
+    ax.tick_params(axis="x", rotation=0, labelsize=10, labelcolor="#000000")
+    ax.tick_params(axis="y", labelsize=10, labelcolor="#000000")
 
     for p in ax.patches:
         altura = p.get_height()
@@ -75,9 +79,9 @@ def salvar_grafico_barra(
                 (p.get_x() + p.get_width() / 2.0, altura),
                 ha="center",
                 va="bottom",
-                fontsize=9,
-                fontweight="600",
-                color="#1e293b",
+                fontsize=9.5,
+                fontweight="bold",
+                color="#000000",
                 xytext=(0, 3),
                 textcoords="offset points",
             )
@@ -155,9 +159,12 @@ def gerar_grafico_evolucao_historica(
         fontsize=14,
         fontweight="bold",
         pad=15,
+        color="#000000",
     )
-    ax.set_xlabel("Período", fontsize=11, fontweight="600", labelpad=10)
-    ax.set_ylabel("Número de Focos", fontsize=11, fontweight="600", labelpad=10)
+    ax.set_xlabel("Período", fontsize=11, fontweight="bold", labelpad=10, color="#000000")
+    ax.set_ylabel("Número de Focos", fontsize=11, fontweight="bold", labelpad=10, color="#000000")
+    ax.tick_params(axis="x", labelsize=10, labelcolor="#000000")
+    ax.tick_params(axis="y", labelsize=10, labelcolor="#000000")
 
     plt.tight_layout()
     caminho = os.path.join(diretorio_saida, f"{municipio_nome.lower()}_evolucao.png")
@@ -198,18 +205,20 @@ def gerar_graficos_variacao_mensal(
         ax.plot(
             range(1, 13), variacao.values, marker="s", color="#7c3aed", linewidth=2, markersize=6
         )
-        ax.axhline(0, color="#94a3b8", linewidth=1.2, linestyle="--")
+        ax.axhline(0, color="#000000", linewidth=1.2, linestyle="--")
 
         ax.set_xticks(range(1, 13))
-        ax.set_xticklabels(meses_labels)
+        ax.set_xticklabels(meses_labels, color="#000000", fontweight="bold")
+        ax.tick_params(axis="y", labelcolor="#000000")
         ax.set_title(
             f"Variação Percentual Mensal (MoM) – {municipio_nome.title()} ({ano})",
             fontsize=14,
             fontweight="bold",
             pad=15,
+            color="#000000",
         )
-        ax.set_xlabel("Mês", fontsize=11, fontweight="600")
-        ax.set_ylabel("Variação (%)", fontsize=11, fontweight="600")
+        ax.set_xlabel("Mês", fontsize=11, fontweight="bold", color="#000000")
+        ax.set_ylabel("Variação (%)", fontsize=11, fontweight="bold", color="#000000")
 
         plt.tight_layout()
         caminho = os.path.join(diretorio_saida, f"{municipio_nome.lower()}_variacao_{ano}.png")
@@ -266,6 +275,7 @@ def gerar_heatmap_mensal_anual(
         annot=True,
         fmt="d",
         cmap="YlOrRd",
+        annot_kws={"color": "#000000", "fontweight": "bold"},
         cbar_kws={"label": "Quantidade de Focos"},
         linewidths=0.5,
         linecolor="#ffffff",
@@ -277,9 +287,12 @@ def gerar_heatmap_mensal_anual(
         fontsize=14,
         fontweight="bold",
         pad=15,
+        color="#000000",
     )
-    ax.set_xlabel("Mês", fontsize=11, fontweight="600", labelpad=10)
-    ax.set_ylabel("Ano", fontsize=11, fontweight="600", labelpad=10)
+    ax.set_xlabel("Mês", fontsize=11, fontweight="bold", labelpad=10, color="#000000")
+    ax.set_ylabel("Ano", fontsize=11, fontweight="bold", labelpad=10, color="#000000")
+    ax.tick_params(axis="x", labelcolor="#000000")
+    ax.tick_params(axis="y", labelcolor="#000000")
 
     plt.tight_layout()
     caminho = os.path.join(diretorio_saida, f"{municipio_nome.lower()}_heatmap.png")
@@ -308,10 +321,12 @@ def gerar_rankings_estaduais(
             fontsize=14,
             fontweight="bold",
             pad=15,
+            color="#000000",
         )
-        ax.set_xlabel("Município", fontsize=11, fontweight="600", labelpad=10)
-        ax.set_ylabel("Quantidade de Focos", fontsize=11, fontweight="600", labelpad=10)
-        ax.tick_params(axis="x", rotation=35, labelsize=9)
+        ax.set_xlabel("Município", fontsize=11, fontweight="bold", labelpad=10, color="#000000")
+        ax.set_ylabel("Quantidade de Focos", fontsize=11, fontweight="bold", labelpad=10, color="#000000")
+        ax.tick_params(axis="x", rotation=35, labelsize=9, labelcolor="#000000")
+        ax.tick_params(axis="y", labelcolor="#000000")
 
         for p in ax.patches:
             altura = p.get_height()
@@ -322,7 +337,8 @@ def gerar_rankings_estaduais(
                     ha="center",
                     va="bottom",
                     fontsize=8.5,
-                    fontweight="600",
+                    fontweight="bold",
+                    color="#000000",
                     xytext=(0, 2),
                     textcoords="offset points",
                 )
@@ -382,15 +398,17 @@ def gerar_comparativo_municipios(
             )
 
         ax.set_xticks(range(1, 13))
-        ax.set_xticklabels(meses_labels)
+        ax.set_xticklabels(meses_labels, color="#000000", fontweight="bold")
+        ax.tick_params(axis="y", labelcolor="#000000")
         ax.set_title(
             f"Evolução Mensal Comparativa entre Municípios – {ano}",
             fontsize=14,
             fontweight="bold",
             pad=15,
+            color="#000000",
         )
-        ax.set_xlabel("Mês", fontsize=11, fontweight="600")
-        ax.set_ylabel("Número de Focos", fontsize=11, fontweight="600")
+        ax.set_xlabel("Mês", fontsize=11, fontweight="bold", color="#000000")
+        ax.set_ylabel("Número de Focos", fontsize=11, fontweight="bold", color="#000000")
         ax.legend(title="Município", frameon=True)
 
         plt.tight_layout()

@@ -94,12 +94,31 @@ html, body, [class*="css"] {
     color: #0f172a;
 }
 
+/* Grid de Métricas em 4 Colunas */
+.metric-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 1.25rem !important;
+    margin-bottom: 1.5rem !important;
+    width: 100% !important;
+}
+@media (max-width: 1100px) {
+    .metric-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+@media (max-width: 600px) {
+    .metric-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
 /* Cards de Métricas (Caixa Branca com Borda) */
 .glass-card {
     background: #ffffff !important;
     border: 1.5px solid #cbd5e1 !important;
     border-radius: 16px !important;
-    padding: 1.35rem 1.5rem !important;
+    padding: 1.25rem 1.35rem !important;
     box-shadow: var(--shadow-soft) !important;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -515,14 +534,14 @@ with st.sidebar:
     st.html("""
     <div style="text-align: center; padding: 1rem 0;">
         <h2 style="color: white; margin: 0; font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-            <i class="fa-solid fa-fire-flame-curved" style="color: #f97316;"></i> QUEIMADAS <span style="color: #38bdf8; font-size: 0.8rem; background: rgba(56, 189, 248, 0.2); padding: 2px 8px; border-radius: 8px;">PRO</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#f97316"><path d="M12 23c-4.97 0-9-4.03-9-9 0-3.9 2.5-7.3 6.2-8.5.4-.1.8.2.8.6 0 .2-.1.5-.3.6-1.5 1.5-2.2 3.1-2.2 4.8 0 3 2.5 5.5 5.5 5.5s5.5-2.5 5.5-5.5c0-1.8-.7-3.4-2.2-4.8-.2-.1-.3-.4-.3-.6 0-.4.4-.7.8-.6 3.7 1.2 6.2 4.6 6.2 8.5 0 4.97-4.03 9-9 9z"/></svg> QUEIMADAS <span style="color: #38bdf8; font-size: 0.8rem; background: rgba(56, 189, 248, 0.2); padding: 2px 8px; border-radius: 8px;">PRO</span>
         </h2>
         <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 4px;">Monitoramento Satelital INPE</p>
     </div>
     <hr style="border-color: rgba(255,255,255,0.1); margin: 0.5rem 0 1.25rem 0;">
     """)
 
-    st.markdown("### <i class='fa-solid fa-sliders' style='color: #38bdf8;'></i> Filtros de Consulta", unsafe_allow_html=True)
+    st.markdown("### :material/tune: Filtros de Consulta")
 
     # 1. Filtro de Estado
     estados_disponiveis = sorted(df_geral["estado"].unique())
@@ -545,7 +564,7 @@ with st.sidebar:
     st.html("<hr style='border-color: rgba(255,255,255,0.1); margin: 1rem 0;'>")
 
     # Botão de Ação Rápida
-    if st.button("Atualizar / Limpar Cache", use_container_width=True):
+    if st.button("Atualizar / Limpar Cache", icon=":material/refresh:", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
 
@@ -593,11 +612,11 @@ st.html(f"""
     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
         <div>
             <div class="hero-title">
-                <i class="fa-solid fa-fire-burner" style="color: #f97316;"></i> Monitoramento de Queimadas
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="#f97316"><path d="M12 23c-4.97 0-9-4.03-9-9 0-3.9 2.5-7.3 6.2-8.5.4-.1.8.2.8.6 0 .2-.1.5-.3.6-1.5 1.5-2.2 3.1-2.2 4.8 0 3 2.5 5.5 5.5 5.5s5.5-2.5 5.5-5.5c0-1.8-.7-3.4-2.2-4.8-.2-.1-.3-.4-.3-.6 0-.4.4-.7.8-.6 3.7 1.2 6.2 4.6 6.2 8.5 0 4.97-4.03 9-9 9z"/></svg> Monitoramento de Queimadas
             </div>
             <div class="hero-subtitle">
-                <i class="fa-solid fa-location-dot" style="color: #38bdf8;"></i> <b>{municipio_sel}</b>, {estado_sel} &nbsp;|&nbsp;
-                <i class="fa-solid fa-calendar-days"></i> Ano Base: <b>{ano_sel}</b>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#38bdf8" style="vertical-align: middle;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> <b>{municipio_sel}</b>, {estado_sel} &nbsp;|&nbsp;
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#94a3b8" style="vertical-align: middle;"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg> Ano Base: <b>{ano_sel}</b>
             </div>
         </div>
         <div>
@@ -618,11 +637,11 @@ if focos_ano_ant > 0:
     var_yoy = ((total_focos - focos_ano_ant) / focos_ano_ant) * 100
     yoy_text = f"{'+' if var_yoy > 0 else ''}{var_yoy:.1f}% vs {ano_anterior}"
     yoy_class = "trend-up" if var_yoy > 0 else "trend-down"
-    yoy_icon = "fa-arrow-trend-up" if var_yoy > 0 else "fa-arrow-trend-down"
+    yoy_icon = "▲" if var_yoy > 0 else "▼"
 else:
     yoy_text = "Sem base prévia"
     yoy_class = "trend-neutral"
-    yoy_icon = "fa-minus"
+    yoy_icon = "—"
 
 # Mês com maior incidência
 if not df_filtrado.empty:
@@ -652,49 +671,49 @@ st.html(f"""
     <div class="glass-card">
         <div class="metric-header">
             <span class="metric-title">Focos Detectados</span>
-            <div class="metric-icon-box" style="background: #fee2e2; color: #dc2626;">
-                <i class="fa-solid fa-fire"></i>
+            <div class="metric-icon-box" style="background: #fee2e2;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#dc2626"><path d="M19.48 12.35c-1.57-4.08-7.16-4.3-5.81-9.99-.2.03-.4.07-.6.11-4.22 1.05-6.07 5.75-4.41 9.94 1.25 3.16.5 5.59-1.51 7.27 1.83.63 3.93.38 5.56-.75 2.5-1.74 3.44-4.8 2.05-7.46 1.48 1.48 2.08 3.51 1.63 5.48 3.63-2.02 4.43-6.66 1.09-10.6zM12.06 20.9c-3.81 0-6.9-3.09-6.9-6.9 0-2.48 1.34-4.71 3.41-5.91-.46 2.54.49 5.09 2.5 6.64 1.84 1.42 2.89 3.65 2.76 5.96-.58.14-1.17.21-1.77.21z"/></svg>
             </div>
         </div>
         <div class="metric-val">{total_focos:,}</div>
         <div class="metric-footer {yoy_class}">
-            <i class="fa-solid {yoy_icon}"></i> {yoy_text}
+            <b>{yoy_icon}</b> {yoy_text}
         </div>
     </div>
     <div class="glass-card">
         <div class="metric-header">
             <span class="metric-title">Pico Sazonal</span>
-            <div class="metric-icon-box" style="background: #ffedd5; color: #ea580c;">
-                <i class="fa-solid fa-chart-line"></i>
+            <div class="metric-icon-box" style="background: #ffedd5;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#ea580c"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
             </div>
         </div>
         <div class="metric-val">{pico_mes_nome}</div>
         <div class="metric-footer trend-neutral">
-            <i class="fa-solid fa-circle-info"></i> {pico_focos:,} focos no mês crítico
+            <span>ℹ️</span> {pico_focos:,} focos no mês crítico
         </div>
     </div>
     <div class="glass-card">
         <div class="metric-header">
             <span class="metric-title">Participação Estadual</span>
-            <div class="metric-icon-box" style="background: #e0e7ff; color: #4338ca;">
-                <i class="fa-solid fa-chart-pie"></i>
+            <div class="metric-icon-box" style="background: #e0e7ff;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#4338ca"><path d="M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2 0v8.99h9c-.53-4.79-4.21-8.47-9-8.99zm0 11.01V22c4.79-.52 8.47-4.2 9-8.99h-9z"/></svg>
             </div>
         </div>
         <div class="metric-val">{percentual_estado:.2f}%</div>
         <div class="metric-footer trend-neutral">
-            <i class="fa-solid fa-map-location-dot"></i> Total de {total_estado:,} no {estado_sel}
+            <span>📍</span> Total de {total_estado:,} no {estado_sel}
         </div>
     </div>
     <div class="glass-card">
         <div class="metric-header">
             <span class="metric-title">Média Mensal</span>
-            <div class="metric-icon-box" style="background: #dcfce7; color: #16a34a;">
-                <i class="fa-solid fa-calculator"></i>
+            <div class="metric-icon-box" style="background: #dcfce7;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#16a34a"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 14H7v-2h10v2zm0-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
             </div>
         </div>
         <div class="metric-val">{(total_focos / 12.0):,.1f}</div>
         <div class="metric-footer trend-neutral">
-            <i class="fa-solid fa-calendar-check"></i> Focos/mês no período
+            <span>📅</span> Focos/mês no período
         </div>
     </div>
 </div>
@@ -706,12 +725,12 @@ st.html(f"""
 # ==============================================================================
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
     [
-        "Visão Geral & KPIs",
-        "Análise Temporal & Sazonal",
-        "GeoAnalytics & Mapa",
-        "Ranking & Comparativos",
-        "Base de Dados & SIG",
-        "Relatório Oficial PDF",
+        ":material/bar_chart: Visão Geral & KPIs",
+        ":material/timeline: Análise Temporal & Sazonal",
+        ":material/map: GeoAnalytics & Mapa",
+        ":material/leaderboard: Ranking & Comparativos",
+        ":material/table_chart: Base de Dados & SIG",
+        ":material/picture_as_pdf: Relatório Oficial PDF",
     ]
 )
 
@@ -723,7 +742,7 @@ with tab1:
     col_g1, col_g2 = st.columns([3, 2])
 
     with col_g1:
-        st.markdown("#### <i class='fa-solid fa-chart-column' style='color: #2563eb;'></i> Distribuição Mensal de Focos de Calor", unsafe_allow_html=True)
+        st.markdown("#### :material/bar_chart: Distribuição Mensal de Focos de Calor")
         if not df_filtrado.empty:
             df_mes = df_filtrado.groupby("mes").size().reset_index(name="focos")
             meses_map = {
@@ -758,19 +777,28 @@ with tab1:
             )
             fig_bar.update_traces(
                 textposition="outside",
-                texttemplate="%{text:,.0f}",
+                texttemplate="<b>%{text:,.0f}</b>",
+                textfont=dict(color="#000000", size=12, family="Plus Jakarta Sans"),
                 marker_line_width=0,
-                opacity=0.9,
+                opacity=0.95,
             )
             fig_bar.update_layout(
                 plot_bgcolor="rgba(0,0,0,0)",
                 paper_bgcolor="rgba(0,0,0,0)",
+                font=dict(color="#000000", family="Plus Jakarta Sans", size=12),
                 height=360,
                 margin=dict(l=10, r=10, t=25, b=10),
                 coloraxis_showscale=False,
-                xaxis=dict(showgrid=False, tickfont=dict(size=12, color="#334155")),
+                xaxis=dict(
+                    showgrid=False,
+                    tickfont=dict(size=12, color="#000000", family="Plus Jakarta Sans"),
+                    title=dict(font=dict(color="#000000", size=13)),
+                ),
                 yaxis=dict(
-                    showgrid=True, gridcolor="#f1f5f9", tickfont=dict(size=11, color="#64748b")
+                    showgrid=True,
+                    gridcolor="#cbd5e1",
+                    tickfont=dict(size=11, color="#000000", family="Plus Jakarta Sans"),
+                    title=dict(font=dict(color="#000000", size=13)),
                 ),
             )
             st.plotly_chart(fig_bar, use_container_width=True)
@@ -778,23 +806,29 @@ with tab1:
             st.info("Nenhum dado registrado para o período selecionado.")
 
     with col_g2:
-        st.markdown("#### <i class='fa-solid fa-gauge-high' style='color: #ea580c;'></i> Indicador de Intensidade e Risco", unsafe_allow_html=True)
+        st.markdown("#### :material/speed: Indicador de Intensidade e Risco")
         max_gauge = max(total_focos * 1.5, 1000)
         fig_gauge = go.Figure(
             go.Indicator(
                 mode="gauge+number",
                 value=total_focos,
                 domain={"x": [0, 1], "y": [0, 1]},
+                number={"font": {"color": "#000000", "size": 40, "family": "Plus Jakarta Sans"}},
                 title={
-                    "text": f"Focos em {municipio_sel}",
-                    "font": {"size": 14, "color": "#475569"},
+                    "text": f"<b>Focos em {municipio_sel}</b>",
+                    "font": {"size": 15, "color": "#000000", "family": "Plus Jakarta Sans"},
                 },
                 gauge={
-                    "axis": {"range": [None, max_gauge], "tickwidth": 1, "tickcolor": "#94a3b8"},
-                    "bar": {"color": "#ef4444"},
+                    "axis": {
+                        "range": [None, max_gauge],
+                        "tickwidth": 1.5,
+                        "tickcolor": "#000000",
+                        "tickfont": {"color": "#000000", "size": 11, "family": "Plus Jakarta Sans"},
+                    },
+                    "bar": {"color": "#dc2626"},
                     "bgcolor": "white",
-                    "borderwidth": 1,
-                    "bordercolor": "#e2e8f0",
+                    "borderwidth": 1.5,
+                    "bordercolor": "#cbd5e1",
                     "steps": [
                         {"range": [0, max_gauge * 0.3], "color": "#dcfce7"},
                         {"range": [max_gauge * 0.3, max_gauge * 0.7], "color": "#fef3c7"},
@@ -804,17 +838,20 @@ with tab1:
             )
         )
         fig_gauge.update_layout(
-            height=360, margin=dict(l=20, r=20, t=40, b=20), paper_bgcolor="rgba(0,0,0,0)"
+            height=360,
+            margin=dict(l=20, r=20, t=40, b=20),
+            paper_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#000000", family="Plus Jakarta Sans"),
         )
         st.plotly_chart(fig_gauge, use_container_width=True)
 
     # Diagnóstico e Destaques Ambientais
     st.html("""
     <div style="background: white; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 1.25rem 1.5rem; margin-top: 1rem;">
-        <h4 style="margin: 0 0 0.5rem 0; color: #0f172a; font-size: 1.05rem;">
-            <i class="fa-solid fa-bullhorn" style="color: #2563eb;"></i> Diagnóstico Rápido de Gestão Ambiental
+        <h4 style="margin: 0 0 0.5rem 0; color: #0f172a; font-size: 1.05rem; font-weight: 800;">
+            📢 Diagnóstico Rápido de Gestão Ambiental
         </h4>
-        <p style="margin: 0; color: #334155; font-size: 0.9rem; line-height: 1.6;">
+        <p style="margin: 0; color: #0f172a; font-size: 0.92rem; line-height: 1.6; font-weight: 500;">
             Os registros indicam que a maior concentração de focos no município ocorre no período do segundo semestre (estiagem amazônica).
             Recomenda-se o fortalecimento preventivo das brigadas de incêndio e monitoramento contínuo das áreas de maior densidade de calor.
         </p>
@@ -826,7 +863,7 @@ with tab1:
 # TAB 2: ANÁLISE TEMPORAL & SAZONALIDADE
 # ------------------------------------------------------------------------------
 with tab2:
-    st.markdown("#### <i class='fa-solid fa-chart-line' style='color: #2563eb;'></i> Série Temporal Histórica de Queimadas", unsafe_allow_html=True)
+    st.markdown("#### :material/timeline: Série Temporal Histórica de Queimadas")
 
     col_t1, col_t2 = st.columns([3, 1])
     with col_t1:
@@ -853,16 +890,19 @@ with tab2:
             x="data",
             y="focos",
             labels={"data": "Data", "focos": "Focos de Calor"},
-            color_discrete_sequence=["#3b82f6"],
+            color_discrete_sequence=["#2563eb"],
         )
         fig_time.update_traces(
-            line=dict(width=2.5, color="#2563eb"), fillcolor="rgba(59, 130, 246, 0.15)"
+            line=dict(width=2.5, color="#1d4ed8"), fillcolor="rgba(37, 99, 235, 0.18)"
         )
         fig_time.update_layout(
             height=380,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#000000", family="Plus Jakarta Sans", size=12),
             xaxis=dict(
+                tickfont=dict(color="#000000", size=12, family="Plus Jakarta Sans"),
+                title=dict(font=dict(color="#000000", size=13)),
                 rangeselector=dict(
                     buttons=list(
                         [
@@ -870,17 +910,23 @@ with tab2:
                             dict(count=1, label="1 ano", step="year", stepmode="backward"),
                             dict(step="all", label="Tudo"),
                         ]
-                    )
+                    ),
+                    font=dict(color="#000000", size=11),
                 ),
                 rangeslider=dict(visible=True, thickness=0.08),
                 type="date",
+            ),
+            yaxis=dict(
+                tickfont=dict(color="#000000", size=12, family="Plus Jakarta Sans"),
+                title=dict(font=dict(color="#000000", size=13)),
+                gridcolor="#cbd5e1",
             ),
             margin=dict(l=10, r=10, t=10, b=10),
         )
         st.plotly_chart(fig_time, use_container_width=True)
 
     # Comparativo Interanual Mês a Mês
-    st.markdown("#### <i class='fa-solid fa-arrows-split-up-and-left' style='color: #7c3aed;'></i> Comparativo de Sazonalidade por Ano (Mês a Mês)", unsafe_allow_html=True)
+    st.markdown("#### :material/compare_arrows: Comparativo de Sazonalidade por Ano (Mês a Mês)")
     if not df_municipio_historico.empty:
         df_sazonal = df_municipio_historico.groupby(["ano", "mes"]).size().reset_index(name="focos")
         meses_labels = {
@@ -912,8 +958,25 @@ with tab2:
             height=360,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#000000", family="Plus Jakarta Sans", size=12),
             margin=dict(l=10, r=10, t=20, b=10),
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1,
+                font=dict(color="#000000", size=12, family="Plus Jakarta Sans"),
+            ),
+            xaxis=dict(
+                tickfont=dict(color="#000000", size=12, family="Plus Jakarta Sans"),
+                title=dict(font=dict(color="#000000", size=13)),
+            ),
+            yaxis=dict(
+                tickfont=dict(color="#000000", size=12, family="Plus Jakarta Sans"),
+                title=dict(font=dict(color="#000000", size=13)),
+                gridcolor="#cbd5e1",
+            ),
         )
         st.plotly_chart(fig_comp, use_container_width=True)
 
@@ -922,7 +985,7 @@ with tab2:
 # TAB 3: GEOANALYTICS & MAPA INTERATIVO AVANÇADO
 # ------------------------------------------------------------------------------
 with tab3:
-    st.markdown("#### <i class='fa-solid fa-map-location-dot' style='color: #059669;'></i> Mapeamento Espacial Interativo", unsafe_allow_html=True)
+    st.markdown("#### :material/map: Mapeamento Espacial Interativo")
 
     df_mapa = df_filtrado.dropna(subset=["latitude", "longitude"])
 
@@ -990,7 +1053,7 @@ with tab3:
 # TAB 4: RANKING & COMPARATIVOS MUNICIPAIS
 # ------------------------------------------------------------------------------
 with tab4:
-    st.markdown(f"#### <i class='fa-solid fa-trophy' style='color: #d97706;'></i> Ranking de Queimadas no Estado do {estado_sel} ({ano_sel})", unsafe_allow_html=True)
+    st.markdown(f"#### :material/leaderboard: Ranking de Queimadas no Estado do {estado_sel} ({ano_sel})")
 
     ranking_estado = df_estado_ano.groupby("municipio").size().reset_index(name="focos")
     ranking_estado = ranking_estado.sort_values("focos", ascending=False).reset_index(drop=True)
@@ -1009,12 +1072,12 @@ with tab4:
             )
             st.html(f"""
             <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 1.25rem; border: 1.5px solid #bfdbfe; display: flex; align-items: center; gap: 1.25rem;">
-                <div style="font-size: 2.2rem; color: #d97706;"><i class="fa-solid fa-trophy"></i></div>
+                <div style="font-size: 2.2rem; color: #d97706;">🏆</div>
                 <div>
                     <span style="font-size: 1.1rem; font-weight: 800; color: #1e40af;">
                         {municipio_sel} está na posição #{pos_atual} no ranking estadual com {focos_atual:,} focos detectados.
                     </span>
-                    <p style="margin: 0; color: #1e3a8a; font-size: 0.88rem; font-weight: 600;">Representa {percentual_estado:.2f}% de todos os focos no estado do {estado_sel} em {ano_sel}.</p>
+                    <p style="margin: 0; color: #1e3a8a; font-size: 0.88rem; font-weight: 700;">Representa {percentual_estado:.2f}% de todos os focos no estado do {estado_sel} em {ano_sel}.</p>
                 </div>
             </div>
             """)
@@ -1031,18 +1094,32 @@ with tab4:
                 color="focos",
                 color_continuous_scale="OrRd",
             )
-            fig_rank.update_traces(textposition="outside", texttemplate="%{text:,.0f}")
+            fig_rank.update_traces(
+                textposition="outside",
+                texttemplate="<b>%{text:,.0f}</b>",
+                textfont=dict(color="#000000", size=12, family="Plus Jakarta Sans"),
+            )
             fig_rank.update_layout(
                 height=400,
                 plot_bgcolor="rgba(0,0,0,0)",
                 paper_bgcolor="rgba(0,0,0,0)",
+                font=dict(color="#000000", family="Plus Jakarta Sans", size=12),
                 coloraxis_showscale=False,
                 margin=dict(l=10, r=10, t=10, b=10),
+                xaxis=dict(
+                    tickfont=dict(color="#000000", size=12, family="Plus Jakarta Sans"),
+                    title=dict(font=dict(color="#000000", size=13)),
+                    gridcolor="#cbd5e1",
+                ),
+                yaxis=dict(
+                    tickfont=dict(color="#000000", size=12, family="Plus Jakarta Sans"),
+                    title=dict(font=dict(color="#000000", size=13)),
+                ),
             )
             st.plotly_chart(fig_rank, use_container_width=True)
 
         with col_r2:
-            st.markdown("##### <i class='fa-solid fa-ranking-star' style='color: #d97706;'></i> Top 10 Municípios", unsafe_allow_html=True)
+            st.markdown("##### :material/military_tech: Top 10 Municípios")
             top10_display = top10_df[["posicao", "municipio", "focos"]].copy()
             top10_display.columns = ["Posição", "Município", "Focos"]
             st.dataframe(top10_display, hide_index=True, use_container_width=True, height=360)
@@ -1052,7 +1129,7 @@ with tab4:
 # TAB 5: CENTRAL DE DADOS & EXPORTAÇÃO SIG
 # ------------------------------------------------------------------------------
 with tab5:
-    st.markdown("#### <i class='fa-solid fa-database' style='color: #2563eb;'></i> Base de Dados Completa e Exportação", unsafe_allow_html=True)
+    st.markdown("#### :material/table_chart: Base de Dados Completa e Exportação")
     st.info(
         f"Foram encontrados **{len(df_filtrado):,}** registros para {municipio_sel} ({estado_sel}) no ano {ano_sel}."
     )
@@ -1060,15 +1137,16 @@ with tab5:
     st.dataframe(df_filtrado, height=380, use_container_width=True, hide_index=True)
 
     st.markdown("---")
-    st.markdown("### <i class='fa-solid fa-download' style='color: #059669;'></i> Central de Downloads Multiformato", unsafe_allow_html=True)
+    st.markdown("### :material/download: Central de Downloads Multiformato")
 
     col_e1, col_e2 = st.columns(2)
 
     with col_e1:
-        st.markdown("##### <i class='fa-solid fa-file-lines' style='color: #2563eb;'></i> Formatos Tabulares", unsafe_allow_html=True)
+        st.markdown("##### :material/description: Formatos Tabulares")
         csv_bytes = exportar_csv(df_filtrado)
         st.download_button(
             label="Baixar em formato CSV (UTF-8)",
+            icon=":material/download:",
             data=csv_bytes,
             file_name=f"queimadas_{municipio_sel.lower()}_{ano_sel}.csv",
             mime="text/csv",
@@ -1080,6 +1158,7 @@ with tab5:
         )
         st.download_button(
             label="Baixar Planilha Excel (.xlsx)",
+            icon=":material/download:",
             data=excel_bytes,
             file_name=f"queimadas_{municipio_sel.lower()}_{ano_sel}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -1087,7 +1166,7 @@ with tab5:
         )
 
     with col_e2:
-        st.markdown("##### <i class='fa-solid fa-earth-americas' style='color: #059669;'></i> Formatos Geoespaciais (SIG / GIS)", unsafe_allow_html=True)
+        st.markdown("##### :material/public: Formatos Geoespaciais (SIG / GIS)")
         if GEOESPACIAL_DISPONIVEL:
             try:
                 gdf_export = criar_geodataframe(df_filtrado)
@@ -1095,6 +1174,7 @@ with tab5:
                 if geojson_bytes:
                     st.download_button(
                         label="Baixar GeoJSON (QGIS / WebGIS)",
+                        icon=":material/download:",
                         data=geojson_bytes,
                         file_name=f"queimadas_{municipio_sel.lower()}_{ano_sel}.geojson",
                         mime="application/geo+json",
@@ -1105,6 +1185,7 @@ with tab5:
                 if shp_bytes:
                     st.download_button(
                         label="Baixar Shapefile Compactado (.ZIP)",
+                        icon=":material/download:",
                         data=shp_bytes,
                         file_name=f"queimadas_{municipio_sel.lower()}_{ano_sel}.zip",
                         mime="application/zip",
@@ -1120,7 +1201,7 @@ with tab5:
 # TAB 6: RELATÓRIO TÉCNICO OFICIAL PDF
 # ------------------------------------------------------------------------------
 with tab6:
-    st.markdown("#### <i class='fa-solid fa-file-pdf' style='color: #dc2626;'></i> Relatório Técnico Oficial de Monitoramento (PDF)", unsafe_allow_html=True)
+    st.markdown("#### :material/picture_as_pdf: Relatório Técnico Oficial de Monitoramento (PDF)")
     st.markdown("""
     Gere e baixe automaticamente um relatório técnico em padrão oficial com capa governamental,
     introdução ambiental, análises descritivas, gráficos de alta resolução (300 DPI) e recomendações técnicas.
@@ -1143,6 +1224,7 @@ with tab6:
         )
         st.download_button(
             label=f"Download do Relatório Oficial ({municipio_sel}.pdf)",
+            icon=":material/download:",
             data=pdf_data,
             file_name=f"relatorio_tecnico_queimadas_{municipio_sel.lower()}_{ano_sel}.pdf",
             mime="application/pdf",
