@@ -370,8 +370,8 @@ def create_document():
 
     # 5. Resultados e Discussão
     add_h1("5. Resultados Obtidos e Discussão")
-    add_h2("5.1 Análise Histórica e Temporal de Óbidos (2020 a 2024)")
-    add_p("A aplicação do pipeline sobre a base histórica completa do Estado do Pará permitiu extrair métricas consolidadas sobre o comportamento das queimadas no município de Óbidos em relação ao panorama estadual. A Tabela 2 sintetiza os totais anuais de focos detectados, a representatividade relativa (%) e a variação anual (YoY) no período de 2020 a 2024.")
+    add_h2("5.1 Análise Histórica e Temporal de Óbidos (2020 a 2026)")
+    add_p("A aplicação do pipeline sobre a base histórica completa do Estado do Pará (2020 a 2026, consolidada até 26 de agosto de 2026) permitiu extrair métricas sobre o comportamento das queimadas no município de Óbidos em relação ao panorama estadual. A Tabela 2 sintetiza os totais anuais de focos detectados, a representatividade relativa (%) e a variação anual (YoY) no período de 2020 a 2026.")
 
     # Table 2: Estatísticas anuais Óbidos vs Pará
     table_ano_hdr = ["Ano", "Focos Óbidos", "Variação YoY Óbidos (%)", "Focos Pará (Total)", "Variação YoY Pará (%)", "Participação Óbidos (%)"]
@@ -379,65 +379,87 @@ def create_document():
         ["2020", "612", "-", "43.032", "-", "1,42%"],
         ["2021", "377", "-38,40%", "27.481", "-36,14%", "1,37%"],
         ["2022", "428", "+13,53%", "43.992", "+60,08%", "0,97%"],
-        ["2023", "1.249", "+191,82%", "44.105", "+0,26%", "2,83%"],
-        ["2024", "708", "-43,31%", "59.848", "+35,70%", "1,18%"],
-        ["Total / Média", "3.374", "Média: 674,8/ano", "218.458", "Média: 43.691/ano", "1,54%"]
+        ["2023", "1.249", "+191,82%", "41.715", "-5,18%", "2,99%"],
+        ["2024", "708", "-43,31%", "59.848", "+43,47%", "1,18%"],
+        ["2025", "531", "-25,00%", "36.892", "-38,36%", "1,44%"],
+        ["2026 (até 26/ago)", "1.716", "+223,16%", "125.742", "+240,84%", "1,36%"],
+        ["Total Consolidado", "5.621", "Média: 803,0/ano", "378.702", "Média: 54.100/ano", "1,48%"]
     ]
     add_table_custom(table_ano_hdr, table_ano_rows, [0.8, 1.0, 1.3, 1.1, 1.2, 1.0],
-                     "Tabela 2 – Resumo histórico de focos de queimadas detectados em Óbidos e no Estado do Pará (2020 a 2024). Fonte: Compilado pelos autores a partir de dados do INPE (2026).")
+                     "Tabela 2 – Resumo histórico de focos de queimadas detectados em Óbidos e no Estado do Pará (2020 a 2026 até 26/08/2026). Fonte: Compilado pelos autores a partir de dados do INPE (2026).")
 
-    add_p("Observa-se que o ano de 2023 registrou um pico extraordinário em Óbidos com 1.249 focos — um aumento expressivo de +191,82% em relação a 2022 —, elevando a representatividade do município para 2,83% de todas as queimadas do Pará. Esse evento atípico correlaciona-se com a severa seca provocada pela intensificação do fenômeno El Niño na bacia do Rio Amazonas em 2023, que comprometeu os níveis fluviais e aumentou a inflamabilidade da floresta primária e secundária na Calha Norte do Pará.")
-    
+    add_p("Observa-se que o ano de 2023 registrou um pico histórico em Óbidos com 1.249 focos — um aumento de +191,82% em relação a 2022 —, correlacionado à severa seca provocada pela intensificação do El Niño na bacia amazônica. Em 2026, até 26 de agosto, o acumulado atingiu 1.716 focos em virtude do adiantamento do período de estiagem na Calha Norte do Pará.")
+
     # Figure 9: obidos_anual.png
-    add_p("A Figura 9 ilustra os totais anuais de focos em Óbidos em comparação com a média histórica municipal (674,8 focos/ano).")
+    add_p("A Figura 9 ilustra os totais anuais de focos em Óbidos em comparação com a série multianual.")
     add_figure("outputs/graficos/obidos_anual.png",
-               "Figura 9 – Totais anuais de focos de queimadas em Óbidos (PA) no período 2020–2024 e linha de média histórica. Fonte: Gerado pelo pipeline scripts/graficos.py (2026).",
+               "Figura 9 – Totais anuais de focos de queimadas em Óbidos (PA) no período 2020–2026. Fonte: Gerado pelo pipeline scripts/graficos.py (2026).",
                width_inches=5.8)
 
     # Figure 10: obidos_evolucao.png
-    add_p("A série temporal completa (mês a mês) ao longo de todo o quinquênio 2020–2024 é apresentada na Figura 10, demonstrando a recorrência estrita dos picos de queima no segundo semestre de cada ano.")
+    add_p("A série temporal completa ao longo de todo o período 2020–2026 é apresentada na Figura 10, demonstrando a recorrência estrita dos picos de queima no segundo semestre de cada ano.")
     add_figure("outputs/graficos/obidos_evolucao.png",
-               "Figura 10 – Série temporal histórica contínua de focos de queimadas em Óbidos (PA) entre 2020 e 2024. Fonte: Gerado pelo pipeline scripts/graficos.py (2026).",
+               "Figura 10 – Série temporal histórica contínua de focos de queimadas em Óbidos (PA) entre 2020 e 2026. Fonte: Gerado pelo pipeline scripts/graficos.py (2026).",
                width_inches=6.0)
 
     add_h2("5.2 Dinâmica Sazonal e Concentração no Período de Estiagem")
-    add_p("A análise de sazonalidade revelou que o regime de queimadas em Óbidos e no Pará obedece a um padrão bimodal climático nítido:")
-    add_bullet("Janeiro a Maio, caracterizado por chuvas intensas e focos residuais (menos de 2% do acumulado anual);", bold_prefix="• Período Úmido (Inverno Amazônico): ")
+    add_p("A análise de sazonalidade confirmou que o regime de queimadas em Óbidos obedece a um padrão bimodal climático:")
+    add_bullet("Janeiro a Maio, com chuvas intensas e focos residuais;", bold_prefix="• Período Úmido (Inverno Amazônico): ")
     add_bullet("Junho e Julho, com início da redução das precipitações e crescimento gradual das queimas;", bold_prefix="• Período de Transição: ")
-    add_bullet("Agosto a Novembro, com ápice concentrado em Setembro, Outubro e Novembro, respondendo por mais de 83% do total de ocorrências.", bold_prefix="• Período Crítico de Seca (Estiagem): ")
+    add_bullet("Agosto a Novembro, com ápice concentrado em Setembro, Outubro e Novembro, respondendo por mais de 80% do total de ocorrências anuais.", bold_prefix="• Período Crítico de Seca (Estiagem): ")
 
     # Figure 11: obidos_heatmap.png
-    add_p("O mapa de calor matricial da Figura 11 expressa a densidade mensal de focos em Óbidos ao longo dos anos, evidenciando que outubro de 2020 (218 focos), outubro de 2023 (617 focos) e novembro de 2023 (412 focos) foram os momentos mais críticos registrados.")
     add_figure("outputs/graficos/obidos_heatmap.png",
-               "Figura 11 – Mapa de calor matricial (Heatmap) da distribuição mensal de focos de queimadas em Óbidos (2020–2024). Fonte: Gerado pelo pipeline scripts/graficos.py (2026).",
-               width_inches=5.8)
-
-    # Figure 12: obidos_variacao_2024.png
-    add_p("A Figura 12 apresenta a variação percentual mês a mês (MoM) em Óbidos para o ano de 2024, evidenciando a aceleração das queimadas no início do segundo semestre.")
-    add_figure("outputs/graficos/obidos_variacao_2024.png",
-               "Figura 12 – Variação percentual mês a mês (MoM) de focos de queimadas em Óbidos no ano de 2024. Fonte: Gerado pelo pipeline scripts/graficos.py (2026).",
+               "Figura 11 – Mapa de calor matricial (Heatmap) da distribuição mensal de focos de queimadas em Óbidos (2020–2026). Fonte: Gerado pelo pipeline scripts/graficos.py (2026).",
                width_inches=5.8)
 
     add_h2("5.3 Contexto Regional e Ranking Estadual no Pará")
-    add_p("No panorama global do Estado do Pará (total de 144 municípios), a análise agregada de 2020 a 2024 revelou forte concentração espacial nos municípios do sudeste e sudoeste paraense (denominado Arco do Desmatamento). A Tabela 3 apresenta os 10 municípios líderes em ocorrências no quinquênio e a posição relativa de Óbidos.")
+    add_p("No panorama consolidado do Estado do Pará (144 municípios), a análise agregada de 2020 a 2026 revelou forte concentração espacial nos municípios do sudoeste e sudeste paraense. A Tabela 3 apresenta os 10 municípios líderes em ocorrências no período e a colocação de Óbidos.")
 
     # Table 3: Top 10 Municipios
-    table_top_hdr = ["Posição", "Município", "Focos Acumulados (2020–2024)", "Participação Estadual (%)", "Bioma Predominante"]
+    table_top_hdr = ["Posição", "Município", "Focos Acumulados (2020–2026)", "Participação Estadual (%)", "Bioma Predominante"]
     table_top_rows = [
-        ["#1", "SÃO FÉLIX DO XINGU", "22.977", "10,52%", "Amazônia"],
-        ["#2", "ALTAMIRA", "22.389", "10,25%", "Amazônia"],
-        ["#3", "NOVO PROGRESSO", "13.473", "6,17%", "Amazônia"],
-        ["#4", "ITAITUBA", "9.588", "4,39%", "Amazônia"],
-        ["#5", "PORTEL", "7.372", "3,37%", "Amazônia"],
-        ["#6", "PACAJÁ", "5.455", "2,50%", "Amazônia"],
-        ["#7", "JACAREACANGA", "4.770", "2,18%", "Amazônia"],
-        ["#8", "MOJU", "4.510", "2,06%", "Amazônia"],
-        ["#9", "URUARÁ", "4.034", "1,85%", "Amazônia"],
-        ["#10", "PLACAS", "3.508", "1,61%", "Amazônia"],
-        ["#11", "ÓBIDOS", "3.374", "1,54%", "Amazônia"]
+        ["#1", "ALTAMIRA", "46.778", "12,35%", "Amazônia"],
+        ["#2", "SÃO FÉLIX DO XINGU", "32.385", "8,55%", "Amazônia"],
+        ["#3", "ITAITUBA", "24.468", "6,46%", "Amazônia"],
+        ["#4", "NOVO PROGRESSO", "21.894", "5,78%", "Amazônia"],
+        ["#5", "JACAREACANGA", "15.270", "4,03%", "Amazônia"],
+        ["#6", "PORTEL", "9.389", "2,48%", "Amazônia"],
+        ["#7", "PACAJÁ", "7.262", "1,92%", "Amazônia"],
+        ["#8", "SANTANA DO ARAGUAIA", "7.213", "1,90%", "Amazônia"],
+        ["#9", "MOJU", "6.547", "1,73%", "Amazônia"],
+        ["#10", "ÓBIDOS", "5.621", "1,48%", "Amazônia"]
     ]
     add_table_custom(table_top_hdr, table_top_rows, [0.8, 2.0, 1.6, 1.4, 1.0],
-                     "Tabela 3 – Ranking dos 10 municípios com maior número de focos de queimadas no Pará (2020–2024) e posição de Óbidos. Fonte: Compilado pelos autores a partir de dados do INPE (2026).")
+                     "Tabela 3 – Ranking dos 10 municípios com maior número de focos de queimadas no Pará (2020–2026 até 26/08/2026). Fonte: Compilado pelos autores a partir de dados do INPE (2026).")
+
+    add_h2("5.4 Análise Territorial em Óbidos: Assentamentos, Quilombolas, UCs e Áreas Indígenas")
+    add_p("A estratificação fundiária e socioambiental dos 5.621 focos registrados em Óbidos permitiu mapear com exatidão onde incidem as maiores pressões de fogo no município. A Tabela 4 apresenta a distribuição por categoria territorial.")
+
+    # Table 4: Categorias Territoriais em Óbidos
+    table_cat_hdr = ["Categoria Territorial Fundiária", "Total de Focos (2020–2026)", "Participação Relativa (%)", "Principais Áreas Afetadas"]
+    table_cat_rows = [
+        ["Território Quilombola (TQ)", "2.526", "44,94%", "TQ Alto Trombetas, Silêncio, Muratubinha, Mondongo, Arapucu"],
+        ["Terra Indígena (TI)", "1.368", "24,34%", "TI Zo'é, TI Kaxuyana-Tunayana, TI Trombetas-Mapuera"],
+        ["Projeto de Assentamento (PA/PAE)", "761", "13,54%", "PAE Lago Grande, PAE Curumu, PAE Salvação, PA Serra Azul"],
+        ["Unidade de Conservação (UC)", "683", "12,15%", "FLOTA Trombetas (671 focos) e FLOTA Faro (12 focos)"],
+        ["Área Privada / Outras Áreas", "283", "5,03%", "Zona urbana, sede municipal e propriedades rurais ribeirinhas"],
+        ["Total Consolidado", "5.621", "100,00%", "Município de Óbidos (PA)"]
+    ]
+    add_table_custom(table_cat_hdr, table_cat_rows, [1.5, 1.2, 1.2, 2.3],
+                     "Tabela 4 – Estratificação de focos de queimadas por categoria territorial no município de Óbidos (2020–2026). Fonte: Autores (2026).")
+
+    # Figures: Territórios em Óbidos
+    add_p("A Figura 12 apresenta o gráfico de barras horizontais dos focos por categoria territorial em Óbidos, e a Figura 13 ilustra a partição percentual em gráfico de rosca.")
+    add_figure("outputs/graficos/obidos_territorios_barras.png",
+               "Figura 12 – Focos de queimadas por categoria territorial em Óbidos (2020–2026). Fonte: Gerado pelo pipeline scripts/graficos.py (2026).",
+               width_inches=5.8)
+
+    add_figure("outputs/graficos/obidos_territorios_pizza.png",
+               "Figura 13 – Participação percentual de queimadas por destinação fundiária em Óbidos. Fonte: Gerado pelo pipeline scripts/graficos.py (2026).",
+               width_inches=5.2)
+
+    add_p("Os dados revelam que as áreas comunitárias tradicionais (Territórios Quilombolas e Projetos de Assentamento Agroextrativista) e as bordas de Terras Indígenas concentram expressiva atividade de fogo, demandando ações de manejo integrado do fogo, fortalecimento de brigadas comunitárias e assistência técnica para alternativas agrícolas sustentáveis.")
 
     # Figure 13: top10_2024.png
     add_p("A Figura 13 apresenta o ranking gráfico dos 10 municípios mais afetados no ano de 2024, destacando São Félix do Xingu e Altamira no topo do estado.")

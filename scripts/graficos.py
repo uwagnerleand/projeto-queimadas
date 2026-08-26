@@ -417,6 +417,72 @@ def gerar_comparativo_municipios(
         plt.close(fig)
 
 
+def gerar_graficos_territoriais_obidos(
+    df_municipio: pd.DataFrame, diretorio_saida: str
+) -> None:
+    """Gera gráficos específicos por categoria territorial (Assentamentos, Quilombolas, UCs, TIs) em Óbidos."""
+    caminho_terr = "dados/tratado/obidos_territorios.csv"
+    if os.path.exists(caminho_terr):
+        df_terr = pd.read_csv(caminho_terr)
+    else:
+        df_terr = df_municipio.copy()
+
+    if "categoria_territorial" not in df_terr.columns or df_terr.empty:
+        return
+
+    # 1. Gráfico de Barras Horizontais por Categoria Territorial
+    contagem_cat = df_terr.groupby("categoria_territorial").size().sort_values(ascending=True)
+
+    fig, ax = plt.subplots(figsize=(10, 5), dpi=300)
+    cores_cat = ["#059669", "#7c3aed", "#d97706", "#2563eb", "#dc2626"]
+    contagem_cat.plot(kind="barh", ax=ax, color=cores_cat[: len(contagem_cat)], edgecolor="none", width=0.65)
+
+    ax.set_title("Focos de Queimadas por Categoria Territorial – Óbidos (2020–2026)", fontsize=13, fontweight="bold", pad=15, color="#000000")
+    ax.set_xlabel("Quantidade de Focos", fontsize=11, fontweight="bold", labelpad=10, color="#000000")
+    ax.set_ylabel("Categoria Territorial", fontsize=11, fontweight="bold", labelpad=10, color="#000000")
+    ax.tick_params(axis="x", labelsize=10, labelcolor="#000000")
+    ax.tick_params(axis="y", labelsize=10, labelcolor="#000000")
+
+    for p in ax.patches:
+        largura = p.get_width()
+        if largura > 0:
+            ax.annotate(
+                f"{int(largura):,}".replace(",", "."),
+                (largura, p.get_y() + p.get_height() / 2.0),
+                ha="left",
+                va="center",
+                fontsize=9.5,
+                fontweight="bold",
+                color="#000000",
+                xytext=(4, 0),
+                textcoords="offset points",
+            )
+
+    plt.tight_layout()
+    caminho_barras = os.path.join(diretorio_saida, "obidos_territorios_barras.png")
+    plt.savefig(caminho_barras, bbox_inches="tight")
+    plt.close(fig)
+
+    # 2. Gráfico de Rosca / Pizza Percentual por Categoria
+    fig, ax = plt.subplots(figsize=(8, 6), dpi=300)
+    wedges, texts, autotexts = ax.pie(
+        contagem_cat.values,
+        labels=contagem_cat.index,
+        autopct="%1.1f%%",
+        startangle=140,
+        colors=cores_cat[: len(contagem_cat)],
+        wedgeprops=dict(width=0.45, edgecolor="#ffffff", linewidth=2),
+    )
+    plt.setp(texts, size=10, weight="bold", color="#000000")
+    plt.setp(autotexts, size=10, weight="bold", color="#000000")
+    ax.set_title("Participação Percentual por Categoria Territorial – Óbidos", fontsize=13, fontweight="bold", pad=15, color="#000000")
+
+    plt.tight_layout()
+    caminho_pizza = os.path.join(diretorio_saida, "obidos_territorios_pizza.png")
+    plt.savefig(caminho_pizza, bbox_inches="tight")
+    plt.close(fig)
+
+
 def gerar_todos_graficos(
     caminho_csv: str = "dados/tratado/queimadas_tratado.csv",
     diretorio_saida: str = "outputs/graficos",
@@ -429,7 +495,7 @@ def gerar_todos_graficos(
     if not os.path.exists(caminho_csv):
         raise FileNotFoundError(f"Arquivo CSV não encontrado em: {caminho_csv}")
 
-    df = pd.read_csv(caminho_csv)
+    df = pd.read_csv(caminho_csv, low_memory=False)
     df["data"] = pd.to_datetime(df["data"], errors="coerce")
     df = df.dropna(subset=["data"])
     df["mes"] = df["data"].dt.month
@@ -448,6 +514,7 @@ def gerar_todos_graficos(
     gerar_heatmap_mensal_anual(df_municipio, municipio, diretorio_saida)
     gerar_rankings_estaduais(df_estado, estado, diretorio_saida)
     gerar_comparativo_municipios(df_estado, municipio, diretorio_saida)
+    gerar_graficos_territoriais_obidos(df_municipio, diretorio_saida)
 
     logger.info("Todos os gráficos foram gerados e salvos com sucesso em: %s", diretorio_saida)
 

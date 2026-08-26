@@ -62,7 +62,7 @@ def executar_pipeline(
     logger.info("=========================================================")
 
     if anos is None:
-        anos = [2020, 2021, 2022, 2024]
+        anos = [2020, 2021, 2022, 2023, 2024, 2025, 2026]
 
     # 1. Coleta
     if not pular_coleta:

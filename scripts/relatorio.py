@@ -19,7 +19,15 @@ import pandas as pd
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.platypus import Image, PageBreak, Paragraph, SimpleDocTemplate, Spacer
+from reportlab.platypus import (
+    Image,
+    PageBreak,
+    Paragraph,
+    SimpleDocTemplate,
+    Spacer,
+    Table,
+    TableStyle,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -217,6 +225,51 @@ def gerar_relatorio_pdf(
         )
     conteudo.append(Spacer(1, 15))
 
+    # 4. Análise Territorial em Óbidos (Assentamentos, Quilombolas, UCs e Terras Indígenas)
+    conteudo.append(Paragraph("4. ANÁLISE TERRITORIAL EM ÓBIDOS: ASSENTAMENTOS, QUILOMBOLAS, UCs E ÁREAS INDÍGENAS", heading_style))
+    conteudo.append(
+        Paragraph(
+            "Em atendimento às diretrizes de governança socioambiental e ordenamento fundiário, "
+            "apresenta-se o diagnóstico espacial estratificado por categorias territoriais de destinação pública, "
+            "comunitária e de proteção integral dentro do município de Óbidos.",
+            body_style,
+        )
+    )
+    conteudo.append(Spacer(1, 8))
+
+    caminho_cat_csv = "outputs/analise/territorios_categorias_obidos.csv"
+    if os.path.exists(caminho_cat_csv):
+        df_cat_rel = pd.read_csv(caminho_cat_csv)
+        dados_tabela_cat = [["Categoria Territorial", "Total de Focos", "Participação (%)"]]
+        for _, row in df_cat_rel.iterrows():
+            dados_tabela_cat.append([
+                str(row["categoria_territorial"]),
+                f"{int(row['total_focos']):,}".replace(",", "."),
+                f"{float(row['percentual_%']):.2f}%",
+            ])
+
+        t_cat = Table(dados_tabela_cat, colWidths=[240, 110, 110])
+        t_cat.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1e3a8a")),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, 0), 9),
+            ("BOTTOMPADDING", (0, 0), (-1, 0), 5),
+            ("TOPPADDING", (0, 0), (-1, 0), 5),
+            ("ALIGN", (1, 0), (-1, -1), "CENTER"),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f8fafc")]),
+            ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
+            ("FONTSIZE", (0, 1), (-1, -1), 8.5),
+            ("BOTTOMPADDING", (0, 1), (-1, -1), 4),
+            ("TOPPADDING", (0, 1), (-1, -1), 4),
+        ]))
+        conteudo.append(Paragraph("<b>Tabela 1 – Distribuição de Queimadas por Categoria Territorial em Óbidos</b>", body_style))
+        conteudo.append(Spacer(1, 4))
+        conteudo.append(t_cat)
+        conteudo.append(Spacer(1, 12))
+
+    # Inclusão de figuras territoriais
     def adicionar_figura(nome_arquivo: str, legenda: str) -> None:
         caminho = os.path.join(diretorio_graficos, nome_arquivo)
         if os.path.exists(caminho):
@@ -227,15 +280,19 @@ def gerar_relatorio_pdf(
         else:
             logger.debug("Gráfico não encontrado para inclusão no PDF: %s", caminho)
 
-    # 5. Visualizações Gráficas
-    conteudo.append(Paragraph("4. PAINEL DE VISUALIZAÇÕES TÉCNICAS", heading_style))
+    adicionar_figura("obidos_territorios_barras.png", "Figura 1 – Distribuição de focos por categoria territorial em Óbidos.")
+    adicionar_figura("obidos_territorios_pizza.png", "Figura 2 – Proporção relativa de queimadas por categoria fundiária.")
+    conteudo.append(PageBreak())
+
+    # 5. Visualizações Gráficas Gerais
+    conteudo.append(Paragraph("5. PAINEL DE SÉRIES HISTÓRICAS E SAZONALIDADE", heading_style))
     adicionar_figura(
         f"{municipio.lower()}_evolucao.png",
-        "Figura 1 – Evolução temporal geral de focos em Óbidos.",
+        "Figura 3 – Evolução temporal geral de focos em Óbidos (2020 a 2026).",
     )
-    adicionar_figura(f"{municipio.lower()}_anual.png", "Figura 2 – Distribuição anual comparativa.")
+    adicionar_figura(f"{municipio.lower()}_anual.png", "Figura 4 – Distribuição anual comparativa.")
     adicionar_figura(
-        f"{municipio.lower()}_heatmap.png", "Figura 3 – Mapa de calor sazonal (Mês × Ano)."
+        f"{municipio.lower()}_heatmap.png", "Figura 5 – Mapa de calor sazonal (Mês × Ano)."
     )
 
     conteudo.append(PageBreak())
@@ -255,28 +312,35 @@ def gerar_relatorio_pdf(
             conteudo.append(PageBreak())
 
     # 6. Conclusões e Recomendações
-    conteudo.append(Paragraph("5. CONCLUSÕES E RECOMENDAÇÕES", heading_style))
+    conteudo.append(Paragraph("6. CONCLUSÕES E RECOMENDAÇÕES", heading_style))
     conteudo.append(
         Paragraph(
-            f"A análise espacial e temporal confirma a ocorrência de picos sazonais críticos "
-            f"no município de {municipio.title()}. Recomenda-se:",
+            f"A análise espacial e territorial em {municipio.title()} comprova que a maior pressão "
+            f"de queimadas incide sobre áreas de transição e projetos de assentamento, enquanto as Unidades de "
+            f"Conservação e Terras Indígenas atuam como barreiras ecológicas vitais. Recomenda-se:",
             body_style,
         )
     )
     conteudo.append(
         Paragraph(
-            "a) Intensificação de patrulhamento e brigadas nos meses de estiagem;", body_style
+            "a) Fortalecimento de brigadas comunitárias nos Projetos de Assentamento (PAEs) e Territórios Quilombolas;", body_style
         )
     )
     conteudo.append(
         Paragraph(
-            "b) Integração de dados em tempo real com Defesa Civil e órgãos fiscalizadores;",
+            "b) Fiscalização integrada permanente nas Unidades de Conservação (FLOTA Trombetas e FLOTA Faro);",
             body_style,
         )
     )
     conteudo.append(
         Paragraph(
-            "c) Campanhas de conscientização e alternativas ao uso do fogo na agricultura familiar.",
+            "c) Monitoramento contínuo das bordas de Terras Indígenas (TI Trombetas-Mapuera, TI Zo'é) com alertas automáticos;",
+            body_style,
+        )
+    )
+    conteudo.append(
+        Paragraph(
+            "d) Incentivo ao manejo agroecológico sustentável e assistência técnica aos produtores rurais.",
             body_style,
         )
     )

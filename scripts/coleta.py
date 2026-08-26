@@ -97,17 +97,64 @@ def carregar_dados_api_json(url: str, timeout: int = 30) -> pd.DataFrame:
     return df
 
 
+def carregar_dados_ano_corrente_2026(timeout: int = 60) -> pd.DataFrame:
+    """Baixa e consolida os dados mensais do ano de 2026 até agosto de 2026.
+
+    Returns:
+        DataFrame com todos os focos registrados em 2026.
+    """
+    logger.info("Iniciando download dos dados mensais de 2026 (Janeiro a Agosto de 2026)...")
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ProjetoQueimadas/1.0"}
+    dfs_meses: List[pd.DataFrame] = []
+
+    for mes in range(1, 9):
+        mes_str = f"2026{mes:02d}"
+        url = f"https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/mensal/Brasil/focos_mensal_br_{mes_str}.csv"
+        try:
+            r = requests.get(url, headers=headers, timeout=timeout)
+            if r.status_code == 200:
+                df_m = pd.read_csv(io.BytesIO(r.content), low_memory=False)
+                logger.info("  Mês %s carregado: %d registros.", mes_str, len(df_m))
+                dfs_meses.append(df_m)
+        except Exception as err:
+            logger.warning("Falha ao baixar mês %s: %s", mes_str, err)
+
+    if not dfs_meses:
+        raise FileNotFoundError("Não foi possível obter os dados de 2026 do INPE.")
+
+    df_2026 = pd.concat(dfs_meses, ignore_index=True)
+    df_2026.columns = df_2026.columns.str.lower().str.strip()
+
+    if "estado" in df_2026.columns:
+        df_2026["estado"] = df_2026["estado"].astype(str).str.upper().str.strip()
+    if "municipio" in df_2026.columns:
+        df_2026["municipio"] = df_2026["municipio"].astype(str).str.upper().str.strip()
+
+    col_data = detectar_coluna_data(df_2026)
+    df_2026["data"] = pd.to_datetime(df_2026[col_data], errors="coerce")
+    df_2026 = df_2026.dropna(subset=["data"])
+    df_2026["mes"] = df_2026["data"].dt.month
+    df_2026["ano"] = df_2026["data"].dt.year
+
+    logger.info("Download de 2026 concluído com sucesso: %d registros.", len(df_2026))
+    return df_2026
+
+
 def carregar_dados_anual_zip(ano: Union[int, str], timeout: int = 60) -> pd.DataFrame:
     """Baixa o arquivo compactado anual do satélite de referência do INPE e retorna um DataFrame.
 
     Args:
-        ano: Ano dos dados desejados (ex: 2024, 2023, 2022).
+        ano: Ano dos dados desejados (ex: 2026, 2025, 2024, 2023, 2022).
         timeout: Tempo limite da requisição em segundos.
 
     Returns:
         DataFrame contendo os registros de queimadas processados para o ano.
     """
-    ano_str = str(ano).strip()
+    ano_int = int(str(ano).strip())
+    if ano_int == 2026:
+        return carregar_dados_ano_corrente_2026(timeout=timeout)
+
+    ano_str = str(ano_int)
     url = (
         f"https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/anual/Brasil_sat_ref/"
         f"focos_br_ref_{ano_str}.zip"
@@ -134,10 +181,10 @@ def carregar_dados_anual_zip(ano: Union[int, str], timeout: int = 60) -> pd.Data
 
         try:
             with zip_file.open(nome_csv) as f:
-                df = pd.read_csv(f)
+                df = pd.read_csv(f, low_memory=False)
         except UnicodeDecodeError:
             with zip_file.open(nome_csv) as f:
-                df = pd.read_csv(f, encoding="latin1")
+                df = pd.read_csv(f, encoding="latin1", low_memory=False)
 
     df.columns = df.columns.str.lower().str.strip()
 

@@ -183,6 +183,39 @@ def executar_analise(
     aumento_estado, queda_estado = identificar_eventos_extremos(serie_estado)
     aumento_mun, queda_mun = identificar_eventos_extremos(serie_municipio)
 
+    # Análise Territorial em Óbidos (Assentamentos, Quilombolas, UCs, TIs)
+    caminho_territorios_obidos = os.path.join(os.path.dirname(caminho_entrada), f"{municipio_alvo.lower()}_territorios.csv")
+    if os.path.exists(caminho_territorios_obidos):
+        df_terr = pd.read_csv(caminho_territorios_obidos)
+    else:
+        df_terr = df_municipio.copy()
+
+    if "categoria_territorial" in df_terr.columns:
+        # 1. Total por Categoria
+        df_cat = df_terr.groupby("categoria_territorial").size().reset_index(name="total_focos").sort_values("total_focos", ascending=False)
+        df_cat["percentual_%"] = (df_cat["total_focos"] / df_cat["total_focos"].sum() * 100).round(2)
+
+        # 2. Categoria x Ano
+        df_cat_ano = df_terr.groupby(["categoria_territorial", "ano"]).size().unstack(fill_value=0).reset_index()
+
+        # 3. Detalhamento por Território / PA / TQ / UC / TI
+        df_terr_detalhado = df_terr.groupby(["categoria_territorial", "nome_territorio"]).size().reset_index(name="total_focos").sort_values("total_focos", ascending=False)
+        df_terr_detalhado["percentual_%"] = (df_terr_detalhado["total_focos"] / len(df_terr) * 100).round(2)
+
+        # 4. Tabelas Específicas
+        df_assentamentos = df_terr[df_terr["categoria_territorial"].str.contains("Assentamento", na=False)].groupby(["nome_territorio", "ano"]).size().unstack(fill_value=0).reset_index()
+        df_quilombolas = df_terr[df_terr["categoria_territorial"].str.contains("Quilombola", na=False)].groupby(["nome_territorio", "ano"]).size().unstack(fill_value=0).reset_index()
+        df_ucs = df_terr[df_terr["categoria_territorial"].str.contains("Conservação", na=False)].groupby(["nome_territorio", "ano"]).size().unstack(fill_value=0).reset_index()
+        df_indigenas = df_terr[df_terr["categoria_territorial"].str.contains("Indígena", na=False)].groupby(["nome_territorio", "ano"]).size().unstack(fill_value=0).reset_index()
+    else:
+        df_cat = pd.DataFrame()
+        df_cat_ano = pd.DataFrame()
+        df_terr_detalhado = pd.DataFrame()
+        df_assentamentos = pd.DataFrame()
+        df_quilombolas = pd.DataFrame()
+        df_ucs = pd.DataFrame()
+        df_indigenas = pd.DataFrame()
+
     # Exportação dos arquivos de análise
     resultados = {
         "ranking_municipios": ranking,
@@ -195,11 +228,19 @@ def executar_analise(
         "queda_para": queda_estado,
         "aumento_obidos": aumento_mun,
         "queda_obidos": queda_mun,
+        "territorios_categorias_obidos": df_cat,
+        "territorios_anual_obidos": df_cat_ano,
+        "territorios_detalhado_obidos": df_terr_detalhado,
+        "assentamentos_obidos": df_assentamentos,
+        "quilombolas_obidos": df_quilombolas,
+        "unidades_conservacao_obidos": df_ucs,
+        "terras_indigenas_obidos": df_indigenas,
     }
 
     for nome, dframe in resultados.items():
-        caminho = os.path.join(diretorio_saida, f"{nome}.csv")
-        dframe.to_csv(caminho, index=False, encoding="utf-8")
+        if not dframe.empty:
+            caminho = os.path.join(diretorio_saida, f"{nome}.csv")
+            dframe.to_csv(caminho, index=False, encoding="utf-8")
 
     logger.info("Análise concluída com sucesso. Arquivos salvos em: %s", diretorio_saida)
     return resultados

@@ -37,10 +37,13 @@ except (ImportError, OSError):
 # Caminhos e constantes do sistema
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
-DATA_FILE = os.path.join(ROOT_DIR, "dados", "tratado", "queimadas_tratado.csv")
+PARA_FILE = os.path.join(ROOT_DIR, "dados", "tratado", "para.csv")
+GERAL_FILE = os.path.join(ROOT_DIR, "dados", "tratado", "queimadas_tratado.csv")
+DATA_FILE = PARA_FILE if os.path.exists(PARA_FILE) else GERAL_FILE
+TERR_FILE = os.path.join(ROOT_DIR, "dados", "tratado", "obidos_territorios.csv")
 LOGO_FILE = os.path.join(ROOT_DIR, "assets", "logo_q.png")
 ICON_FILE = os.path.join(ROOT_DIR, "assets", "icon.png")
-INPE_YEARS = [2020, 2021, 2022, 2024]
+INPE_YEARS = [2020, 2021, 2022, 2023, 2024, 2025, 2026]
 
 # ==============================================================================
 # CONFIGURAÇÃO DA PÁGINA
@@ -723,10 +726,11 @@ st.html(f"""
 # ==============================================================================
 # ABAS DE NAVEGAÇÃO E ANÁLISE INTERATIVA
 # ==============================================================================
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+tab1, tab2, tab_terr, tab3, tab4, tab5, tab6 = st.tabs(
     [
         ":material/bar_chart: Visão Geral & KPIs",
         ":material/timeline: Análise Temporal & Sazonal",
+        ":material/shield: Territórios & Áreas Protegidas",
         ":material/map: GeoAnalytics & Mapa",
         ":material/leaderboard: Ranking & Comparativos",
         ":material/table_chart: Base de Dados & SIG",
@@ -869,7 +873,7 @@ with tab2:
     with col_t1:
         escopo_temporal = st.radio(
             "Visualização da Série:",
-            ["Série Multianual Completa (2020 a 2024)", f"Apenas o Ano Selecionado ({ano_sel})"],
+            ["Série Multianual Completa (2020 a 2026)", f"Apenas o Ano Selecionado ({ano_sel})"],
             horizontal=True,
         )
 
@@ -979,6 +983,185 @@ with tab2:
             ),
         )
         st.plotly_chart(fig_comp, use_container_width=True)
+
+
+# ------------------------------------------------------------------------------
+# TAB 3: TERRITÓRIOS & ÁREAS PROTEGIDAS (ÓBIDOS)
+# ------------------------------------------------------------------------------
+with tab_terr:
+    st.markdown("#### :material/shield: Monitoramento Territorial de Óbidos")
+    st.caption("Estratificação detalhada de focos em Assentamentos (INCRA/PAEs), Territórios Quilombolas, Unidades de Conservação (UCs) e Terras Indígenas (TIs).")
+
+    if os.path.exists(TERR_FILE):
+        df_terr_obidos = pd.read_csv(TERR_FILE)
+    else:
+        df_terr_obidos = df_geral[df_geral["municipio"] == "OBIDOS"].copy()
+
+    col_ft1, col_ft2 = st.columns([3, 1])
+    with col_ft1:
+        filtro_ano_terr = st.radio(
+            "Período Territorial:",
+            [f"Ano Selecionado ({ano_sel})", "Série Histórica Completa (2020 a 2026)"],
+            horizontal=True,
+            key="filtro_periodo_terr",
+        )
+
+    if filtro_ano_terr.startswith("Ano Selecionado"):
+        df_terr_view = df_terr_obidos[df_terr_obidos["ano"] == ano_sel]
+    else:
+        df_terr_view = df_terr_obidos.copy()
+
+    # Cálculos dos KPIs
+    focos_tq = len(df_terr_view[df_terr_view["categoria_territorial"].str.contains("Quilombola", na=False)])
+    focos_ti = len(df_terr_view[df_terr_view["categoria_territorial"].str.contains("Indígena", na=False)])
+    focos_pa = len(df_terr_view[df_terr_view["categoria_territorial"].str.contains("Assentamento", na=False)])
+    focos_uc = len(df_terr_view[df_terr_view["categoria_territorial"].str.contains("Conservação", na=False)])
+    total_terr = len(df_terr_view)
+
+    st.html(f"""
+    <div class="metric-grid" style="margin-bottom: 1.5rem;">
+        <div class="glass-card">
+            <div class="metric-header">
+                <span class="metric-title">Territórios Quilombolas</span>
+                <div class="metric-icon-box" style="background: #fef3c7;">
+                    <span style="font-size: 1.3rem;">🛖</span>
+                </div>
+            </div>
+            <div class="metric-val">{focos_tq:,}</div>
+            <div class="metric-footer trend-neutral">
+                <b>{(focos_tq/total_terr*100 if total_terr>0 else 0):.1f}%</b> dos focos de Óbidos
+            </div>
+        </div>
+        <div class="glass-card">
+            <div class="metric-header">
+                <span class="metric-title">Terras Indígenas</span>
+                <div class="metric-icon-box" style="background: #fee2e2;">
+                    <span style="font-size: 1.3rem;">🏹</span>
+                </div>
+            </div>
+            <div class="metric-val">{focos_ti:,}</div>
+            <div class="metric-footer trend-neutral">
+                <b>{(focos_ti/total_terr*100 if total_terr>0 else 0):.1f}%</b> dos focos de Óbidos
+            </div>
+        </div>
+        <div class="glass-card">
+            <div class="metric-header">
+                <span class="metric-title">Projetos de Assentamento</span>
+                <div class="metric-icon-box" style="background: #e0e7ff;">
+                    <span style="font-size: 1.3rem;">🌾</span>
+                </div>
+            </div>
+            <div class="metric-val">{focos_pa:,}</div>
+            <div class="metric-footer trend-neutral">
+                <b>{(focos_pa/total_terr*100 if total_terr>0 else 0):.1f}%</b> dos focos de Óbidos
+            </div>
+        </div>
+        <div class="glass-card">
+            <div class="metric-header">
+                <span class="metric-title">Unidades de Conservação</span>
+                <div class="metric-icon-box" style="background: #dcfce7;">
+                    <span style="font-size: 1.3rem;">🌲</span>
+                </div>
+            </div>
+            <div class="metric-val">{focos_uc:,}</div>
+            <div class="metric-footer trend-neutral">
+                <b>{(focos_uc/total_terr*100 if total_terr>0 else 0):.1f}%</b> dos focos de Óbidos
+            </div>
+        </div>
+    </div>
+    """)
+
+    # Visualizações Gráficas Territoriais
+    col_tg1, col_tg2 = st.columns([3, 2])
+    with col_tg1:
+        st.markdown("##### :material/bar_chart: Focos por Categoria Territorial")
+        df_cat_plot = df_terr_view.groupby("categoria_territorial").size().reset_index(name="focos").sort_values("focos", ascending=True)
+        fig_cat_bar = px.bar(
+            df_cat_plot,
+            x="focos",
+            y="categoria_territorial",
+            orientation="h",
+            text="focos",
+            color="focos",
+            color_continuous_scale="YlOrRd",
+            labels={"focos": "Quantidade de Focos", "categoria_territorial": "Categoria"},
+        )
+        fig_cat_bar.update_traces(
+            textposition="outside",
+            texttemplate="<b>%{text:,.0f}</b>",
+            textfont=dict(color="#000000", size=12, family="Plus Jakarta Sans"),
+            marker_line_width=0,
+        )
+        fig_cat_bar.update_layout(
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#000000", family="Plus Jakarta Sans", size=12),
+            height=340,
+            margin=dict(l=10, r=20, t=20, b=10),
+            coloraxis_showscale=False,
+            xaxis=dict(tickfont=dict(size=11, color="#000000"), title=dict(font=dict(color="#000000", size=12)), showgrid=True, gridcolor="#cbd5e1"),
+            yaxis=dict(tickfont=dict(size=11, color="#000000"), title=dict(font=dict(color="#000000", size=12)), showgrid=False),
+        )
+        st.plotly_chart(fig_cat_bar, use_container_width=True)
+
+    with col_tg2:
+        st.markdown("##### :material/pie_chart: Proporção Relativa Fundiária")
+        fig_cat_pie = px.pie(
+            df_cat_plot,
+            values="focos",
+            names="categoria_territorial",
+            hole=0.45,
+            color_discrete_sequence=["#d97706", "#dc2626", "#2563eb", "#059669", "#64748b"],
+        )
+        fig_cat_pie.update_traces(
+            textposition="inside",
+            textinfo="percent+label",
+            textfont=dict(color="#000000", size=11, family="Plus Jakarta Sans"),
+            marker=dict(line=dict(color="#ffffff", width=2)),
+        )
+        fig_cat_pie.update_layout(
+            height=340,
+            margin=dict(l=10, r=10, t=20, b=10),
+            paper_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#000000", family="Plus Jakarta Sans"),
+            showlegend=False,
+        )
+        st.plotly_chart(fig_cat_pie, use_container_width=True)
+
+    # Sub-abas com tabelas detalhadas
+    st.markdown("---")
+    st.markdown("##### :material/table_chart: Tabelas Detalhadas por Categoria Fundiária em Óbidos")
+
+    subtab_pa, subtab_tq, subtab_uc, subtab_ti = st.tabs([
+        ":material/agriculture: Assentamentos (INCRA / PAEs)",
+        ":material/home: Territórios Quilombolas",
+        ":material/park: Unidades de Conservação (UCs)",
+        ":material/shield: Terras Indígenas (TIs)",
+    ])
+
+    with subtab_pa:
+        df_pa_tab = df_terr_obidos[df_terr_obidos["categoria_territorial"].str.contains("Assentamento", na=False)]
+        piv_pa = df_pa_tab.groupby(["nome_territorio", "ano"]).size().unstack(fill_value=0)
+        piv_pa["Total Histórico"] = piv_pa.sum(axis=1)
+        st.dataframe(piv_pa, use_container_width=True)
+
+    with subtab_tq:
+        df_tq_tab = df_terr_obidos[df_terr_obidos["categoria_territorial"].str.contains("Quilombola", na=False)]
+        piv_tq = df_tq_tab.groupby(["nome_territorio", "ano"]).size().unstack(fill_value=0)
+        piv_tq["Total Histórico"] = piv_tq.sum(axis=1)
+        st.dataframe(piv_tq, use_container_width=True)
+
+    with subtab_uc:
+        df_uc_tab = df_terr_obidos[df_terr_obidos["categoria_territorial"].str.contains("Conservação", na=False)]
+        piv_uc = df_uc_tab.groupby(["nome_territorio", "ano"]).size().unstack(fill_value=0)
+        piv_uc["Total Histórico"] = piv_uc.sum(axis=1)
+        st.dataframe(piv_uc, use_container_width=True)
+
+    with subtab_ti:
+        df_ti_tab = df_terr_obidos[df_terr_obidos["categoria_territorial"].str.contains("Indígena", na=False)]
+        piv_ti = df_ti_tab.groupby(["nome_territorio", "ano"]).size().unstack(fill_value=0)
+        piv_ti["Total Histórico"] = piv_ti.sum(axis=1)
+        st.dataframe(piv_ti, use_container_width=True)
 
 
 # ------------------------------------------------------------------------------

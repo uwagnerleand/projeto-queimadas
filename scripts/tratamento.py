@@ -55,7 +55,7 @@ def detectar_coluna_data(df: pd.DataFrame) -> str:
     Raises:
         ValueError: Se nenhuma coluna de data válida for encontrada.
     """
-    colunas_possiveis = ["datahora", "data", "data_pas", "datetime", "timestamp"]
+    colunas_possiveis = ["data_hora_gmt", "data_hora", "datahora", "data_pas", "data", "datetime", "timestamp"]
     for col in colunas_possiveis:
         if col in df.columns:
             return col
@@ -88,6 +88,26 @@ def carregar_arquivos_brutos(padrao_busca: str = "dados/bruto/queimadas_*.csv") 
             df_temp = pd.read_csv(arq, encoding="utf-8", low_memory=False)
         except (UnicodeDecodeError, Exception):
             df_temp = pd.read_csv(arq, encoding="latin1", low_memory=False)
+
+        df_temp.columns = df_temp.columns.str.lower().str.strip()
+        df_temp = df_temp.rename(columns={"lat": "latitude", "lon": "longitude", "long": "longitude"})
+
+        try:
+            col_d = detectar_coluna_data(df_temp)
+            df_temp["data"] = pd.to_datetime(df_temp[col_d], errors="coerce")
+            df_temp = df_temp.dropna(subset=["data"])
+            df_temp["mes"] = df_temp["data"].dt.month
+            df_temp["ano"] = df_temp["data"].dt.year
+        except Exception as err:
+            logger.warning("Não foi possível extrair coluna temporal de %s: %s", arq, err)
+
+        if "estado" in df_temp.columns:
+            df_temp["estado"] = df_temp["estado"].apply(normalizar_texto)
+        if "municipio" in df_temp.columns:
+            df_temp["municipio"] = df_temp["municipio"].apply(normalizar_texto)
+        if "bioma" in df_temp.columns:
+            df_temp["bioma"] = df_temp["bioma"].apply(normalizar_texto)
+
         lista_df.append(df_temp)
 
     df_consolidado = pd.concat(lista_df, ignore_index=True)
@@ -112,9 +132,10 @@ def tratar_dataframe(df: pd.DataFrame, remover_coordenadas_invalidas: bool = Tru
     df_clean = df_clean.rename(columns={"lat": "latitude", "lon": "longitude", "long": "longitude"})
 
     # Tratamento de Data
-    col_data = detectar_coluna_data(df_clean)
-    df_clean["data"] = pd.to_datetime(df_clean[col_data], errors="coerce")
-    df_clean = df_clean.dropna(subset=["data"])
+    if "data" not in df_clean.columns or df_clean["data"].isna().all():
+        col_data = detectar_coluna_data(df_clean)
+        df_clean["data"] = pd.to_datetime(df_clean[col_data], errors="coerce")
+        df_clean = df_clean.dropna(subset=["data"])
 
     df_clean["mes"] = df_clean["data"].dt.month
     df_clean["ano"] = df_clean["data"].dt.year
@@ -148,6 +169,66 @@ def tratar_dataframe(df: pd.DataFrame, remover_coordenadas_invalidas: bool = Tru
     return df_clean
 
 
+def classificar_territorio_obidos(lat: float, lon: float) -> Tuple[str, str]:
+    """Classifica um ponto espacial de Óbidos em sua categoria e nome territorial.
+
+    Categorias:
+        - 'Unidade de Conservação (UC)'
+        - 'Terra Indígena (TI)'
+        - 'Território Quilombola (TQ)'
+        - 'Projeto de Assentamento (PA)'
+        - 'Área Privada / Outras Áreas'
+    """
+    if pd.isna(lat) or pd.isna(lon):
+        return ("Área Privada / Outras Áreas", "Não Mapeado")
+
+    try:
+        lat_f = float(lat)
+        lon_f = float(lon)
+    except (ValueError, TypeError):
+        return ("Área Privada / Outras Áreas", "Não Mapeado")
+
+    # 1. Terras Indígenas (Norte de Óbidos / Calha Norte)
+    if lat_f >= 0.5:
+        if lon_f < -55.8:
+            return ("Terra Indígena (TI)", "TI Trombetas-Mapuera / Nhamundá")
+        else:
+            return ("Terra Indígena (TI)", "TI Zoé / Kaxuyana-Tunayana")
+    elif lat_f >= 0.0 and lon_f < -55.9:
+        return ("Terra Indígena (TI)", "TI Trombetas-Mapuera")
+    elif lat_f >= -0.6 and lon_f >= -55.5 and lon_f <= -54.6:
+        return ("Terra Indígena (TI)", "TI Zoé")
+    elif lat_f >= -0.4 and lon_f < -55.8:
+        return ("Terra Indígena (TI)", "TI Nhamundá-Mapuera")
+
+    # 2. Unidades de Conservação (FLOTA Trombetas, FLOTA Faro, REBIO)
+    if lat_f >= -1.4 and lat_f < 0.3:
+        if lon_f < -56.0:
+            return ("Unidade de Conservação (UC)", "FLOTA Faro")
+        else:
+            return ("Unidade de Conservação (UC)", "FLOTA Trombetas")
+    elif lat_f >= -1.7 and lat_f < -1.4 and lon_f < -55.9:
+        return ("Unidade de Conservação (UC)", "FLOTA Faro")
+    elif lat_f >= -1.5 and lat_f < -1.1 and lon_f >= -56.3 and lon_f <= -55.8:
+        return ("Unidade de Conservação (UC)", "REBIO Trombetas")
+
+    # 3. Territórios Quilombolas (Alto Trombetas, Silêncio, Muratubinha, Arapucu, Mondongo)
+    if lat_f >= -1.95 and lat_f < -1.4:
+        if lon_f >= -55.9 and lon_f < -55.4:
+            return ("Território Quilombola (TQ)", "TQ Alto Trombetas / Silêncio / Muratubinha")
+        elif lon_f >= -55.4 and lon_f <= -55.0 and lat_f >= -1.75:
+            return ("Território Quilombola (TQ)", "TQ Mondongo / Arapucu / Cabeceiras")
+
+    # 4. Projetos de Assentamento (INCRA / PAEs ao sul de Óbidos e várzeas/terra firme)
+    if lat_f < -1.8:
+        if lon_f >= -55.8 and lon_f <= -55.25:
+            return ("Projeto de Assentamento (PA)", "PAE Lago Grande / Curumu / Salvação")
+        elif lon_f > -55.25:
+            return ("Projeto de Assentamento (PA)", "PA Serra Azul / Centrinho / Mamauru")
+
+    return ("Área Privada / Outras Áreas", "Área Privada / Sede / Não Destinada")
+
+
 def processar_e_salvar(
     origem_padrao: str = "dados/bruto/queimadas_*.csv",
     destino_dir: str = "dados/tratado",
@@ -178,19 +259,35 @@ def processar_e_salvar(
     )
 
     df_municipio = (
-        df_tratado[df_tratado["municipio"] == municipio_foco]
+        df_tratado[df_tratado["municipio"] == municipio_foco].copy()
         if "municipio" in df_tratado.columns
         else pd.DataFrame()
     )
+
+    # Aplicação de Classificação Territorial para Óbidos
+    if not df_municipio.empty and "latitude" in df_municipio.columns and "longitude" in df_municipio.columns:
+        cats = []
+        nomes = []
+        for _, row in df_municipio.iterrows():
+            c, n = classificar_territorio_obidos(row["latitude"], row["longitude"])
+            cats.append(c)
+            nomes.append(n)
+        df_municipio["categoria_territorial"] = cats
+        df_municipio["nome_territorio"] = nomes
+    else:
+        df_municipio["categoria_territorial"] = "Área Privada / Outras Áreas"
+        df_municipio["nome_territorio"] = "Não Mapeado"
 
     # Salvar resultados
     caminho_geral = os.path.join(destino_dir, "queimadas_tratado.csv")
     caminho_estado = os.path.join(destino_dir, f"{estado_foco.lower()}.csv")
     caminho_municipio = os.path.join(destino_dir, f"{municipio_foco.lower()}.csv")
+    caminho_territorios = os.path.join(destino_dir, f"{municipio_foco.lower()}_territorios.csv")
 
     df_tratado.to_csv(caminho_geral, index=False, encoding="utf-8")
     df_estado.to_csv(caminho_estado, index=False, encoding="utf-8")
     df_municipio.to_csv(caminho_municipio, index=False, encoding="utf-8")
+    df_municipio.to_csv(caminho_territorios, index=False, encoding="utf-8")
 
     logger.info("Tratamento concluído com sucesso!")
     logger.info(
