@@ -1450,7 +1450,7 @@ with tab6:
             pdf_data = f_pdf.read()
 
         st.success(
-            f"Relatório Técnico Oficial compilado e disponível para download ({len(pdf_data) / 1024 / 1024:.2f} MB)."
+            f"Relatório Técnico Oficial compilado no modelo padronizado ({len(pdf_data) / 1024 / 1024:.2f} MB)."
         )
         st.download_button(
             label=f"Download do Relatório Oficial ({municipio_sel}.pdf)",
@@ -1458,6 +1458,22 @@ with tab6:
             data=pdf_data,
             file_name=f"relatorio_tecnico_queimadas_{municipio_sel.lower()}_{ano_sel}.pdf",
             mime="application/pdf",
+            use_container_width=True,
+        )
+
+    pasta_modelo_path = os.path.join(ROOT_DIR, "PASTA_DE_RELATORIO_DE_QUEIMADAS.xlsx")
+    if os.path.exists(pasta_modelo_path):
+        st.markdown("---")
+        st.markdown("##### :material/table_chart: Pasta de Relatório Modelo Original (Excel)")
+        st.caption("Planilha modelo com tabelas de quantitativos mensais, ranking estadual, assentamentos e municípios extremantes.")
+        with open(pasta_modelo_path, "rb") as f_excel:
+            excel_modelo_data = f_excel.read()
+        st.download_button(
+            label="Download da Pasta de Relatório de Queimadas (.xlsx)",
+            icon=":material/table_chart:",
+            data=excel_modelo_data,
+            file_name="PASTA_DE_RELATORIO_DE_QUEIMADAS.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             use_container_width=True,
         )
     else:
