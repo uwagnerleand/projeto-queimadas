@@ -282,19 +282,29 @@ section[data-testid="stSidebar"] .stSelectbox label {
     margin-bottom: 0.25rem !important;
 }
 
-/* Caixas de Seleção na Sidebar (Caixa Escura Grafite com Texto Branco) */
-section[data-testid="stSidebar"] div[data-baseweb="select"] > div {
-    background-color: #1e293b !important;
-    border: 1.5px solid #475569 !important;
+/* Caixas de Seleção na Sidebar (Caixa Escura Grafite com Texto Branco Nítido) */
+section[data-testid="stSidebar"] div[data-baseweb="select"] {
+    background-color: #0f172a !important;
+    border: 2px solid #64748b !important;
     border-radius: 10px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+}
+section[data-testid="stSidebar"] div[data-baseweb="select"] > div,
+section[data-testid="stSidebar"] div[data-baseweb="select"] [data-testid="stMarkdownContainer"],
+section[data-testid="stSidebar"] div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {
+    background-color: transparent !important;
+    background: transparent !important;
     color: #ffffff !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+    -webkit-text-fill-color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
 }
 section[data-testid="stSidebar"] div[data-baseweb="select"] * {
     color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
 }
 section[data-testid="stSidebar"] div[data-baseweb="select"] svg {
-    fill: #cbd5e1 !important;
+    fill: #ffffff !important;
 }
 
 /* Menus Suspensos / Dropdown Popovers (Caixa Escura com Texto Branco) */
@@ -461,9 +471,26 @@ def exportar_excel(df: pd.DataFrame, ranking: pd.DataFrame) -> bytes:
 
 
 def carregar_dados_inpe_ano(ano: int) -> pd.DataFrame:
-    """Baixa e extrai dados do INPE diretamente da nuvem."""
-    url = f"https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/anual/Brasil_sat_ref/focos_br_ref_{ano}.zip"
+    """Baixa e extrai dados do INPE diretamente da nuvem com suporte a séries anuais e mensais correntes."""
     headers = {"User-Agent": "ProjetoQueimadas/1.0"}
+    
+    if ano == 2026:
+        # Ano corrente 2026: baixar feeds mensais disponíveis (janeiro a agosto)
+        dfs_mes = []
+        for m in range(1, 9):
+            url_m = f"https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/mensal/Brasil/Focos_mensal_br_2026{m:02d}.csv"
+            try:
+                r = requests.get(url_m, headers=headers, timeout=30)
+                if r.status_code == 200:
+                    df_m = pd.read_csv(io.StringIO(r.text), low_memory=False)
+                    df_m.columns = df_m.columns.str.lower().str.strip()
+                    dfs_mes.append(df_m)
+            except Exception:
+                pass
+        if dfs_mes:
+            return pd.concat(dfs_mes, ignore_index=True)
+            
+    url = f"https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/anual/Brasil_sat_ref/focos_br_ref_{ano}.zip"
     resp = requests.get(url, headers=headers, timeout=60)
     resp.raise_for_status()
 
@@ -480,14 +507,14 @@ def carregar_dados_inpe_ano(ano: int) -> pd.DataFrame:
     return df
 
 
-@st.cache_data(show_spinner="Carregando e indexando dados de queimadas...")
+@st.cache_data(ttl=3600, show_spinner="Carregando e indexando dados de queimadas (2020–2026)...")
 def carregar_dados() -> pd.DataFrame:
     """Carrega dados tratados locais ou aciona download direto com fallback."""
     df = None
     if os.path.exists(DATA_FILE):
         try:
             df_temp = pd.read_csv(DATA_FILE, low_memory=False)
-            if "data" in df_temp.columns and len(df_temp) > 100:
+            if ("data" in df_temp.columns or "data_pas" in df_temp.columns or "datahora" in df_temp.columns) and len(df_temp) > 100:
                 df = df_temp
         except Exception:
             df = None
@@ -509,8 +536,8 @@ def carregar_dados() -> pd.DataFrame:
     df["data"] = pd.to_datetime(df[col_data], errors="coerce")
     df = df.dropna(subset=["data"])
 
-    df["mes"] = df["data"].dt.month
-    df["ano"] = df["data"].dt.year
+    df["mes"] = df["data"].dt.month.astype(int)
+    df["ano"] = df["data"].dt.year.astype(int)
 
     if "estado" in df.columns:
         df["estado"] = df["estado"].astype(str).str.upper().str.strip()
@@ -533,10 +560,11 @@ except Exception as exc:
 # ==============================================================================
 # SIDEBAR - FILTROS DINÂMICOS & CONTROLES
 # ==============================================================================
+
 with st.sidebar:
     st.html("""
-    <div style="text-align: center; padding: 1rem 0;">
-        <h2 style="color: white; margin: 0; font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+    <div style="text-align: center; padding: 0.5rem 0;">
+        <h2 style="color: #f8fafc; margin: 0; font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; justify-content: center; gap: 8px;">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="#f97316"><path d="M12 23c-4.97 0-9-4.03-9-9 0-3.9 2.5-7.3 6.2-8.5.4-.1.8.2.8.6 0 .2-.1.5-.3.6-1.5 1.5-2.2 3.1-2.2 4.8 0 3 2.5 5.5 5.5 5.5s5.5-2.5 5.5-5.5c0-1.8-.7-3.4-2.2-4.8-.2-.1-.3-.4-.3-.6 0-.4.4-.7.8-.6 3.7 1.2 6.2 4.6 6.2 8.5 0 4.97-4.03 9-9 9z"/></svg> QUEIMADAS <span style="color: #38bdf8; font-size: 0.8rem; background: rgba(56, 189, 248, 0.2); padding: 2px 8px; border-radius: 8px;">PRO</span>
         </h2>
         <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 4px;">Monitoramento Satelital INPE</p>
@@ -560,9 +588,16 @@ with st.sidebar:
     )
     municipio_sel = st.selectbox("Município Alvo", municipios_disponiveis, index=mun_default_idx)
 
-    # 3. Filtro de Ano
-    anos_disponiveis = sorted(df_geral["ano"].unique(), reverse=True)
-    ano_sel = st.selectbox("Ano de Referência", anos_disponiveis, index=0)
+    # 3. Filtro de Ano (Série Histórica Completa 2020 a 2026)
+    anos_presentes = [2026, 2025, 2024, 2023, 2022, 2021, 2020]
+    ano_sel = st.selectbox(
+        "Ano de Referência",
+        anos_presentes,
+        index=0,
+        format_func=lambda y: f"🗓️ {y} (Ano Atual - até 26/08)" if y == 2026 else f"🗓️ {y}",
+        help="Selecione o ano para análise detalhada. Inclui série completa de 2020 a 2026."
+    )
+    st.caption(f"Série integrada: **2020 a 2026** | Selecionado: **{ano_sel}**")
 
     st.html("<hr style='border-color: rgba(255,255,255,0.1); margin: 1rem 0;'>")
 
