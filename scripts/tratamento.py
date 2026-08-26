@@ -169,64 +169,144 @@ def tratar_dataframe(df: pd.DataFrame, remover_coordenadas_invalidas: bool = Tru
     return df_clean
 
 
-def classificar_territorio_obidos(lat: float, lon: float) -> Tuple[str, str]:
-    """Classifica um ponto espacial de Óbidos em sua categoria e nome territorial.
+TERRITORIOS_OFICIAIS_OBIDOS = [
+    "PA Curumu II",
+    "ESTAÇÃO ECOLOGICA DO GRÃO PARÁ",
+    "FLORESTA ESTADUAL DO PARU",
+    "FLORESTA ESTADUAL DO TROMBETAS",
+    "Parque do Tumucumaque",
+    "Zoe",
+    "PA CIPOAL",
+    "PA MAMURU",
+    "PAE MARIA TEREZA",
+    "PAE VALE DO SALGADO",
+    "PDS MALOCA",
+    "PAC MONTE MURIA",
+    "PAE PARANA DONA ROSA",
+    "PAE TRES ILHAS",
+    "PA VALE DO AÇAÍ",
+    "PAC ITAPECURU",
+    "PAC ANANIZAL",
+    "PAE CACHOERY",
+    "PA REPARTIMENTO",
+    "PAQ ESPECIAL QUILOMBOLA EREPECURÚ",
+    "PAE COSTA FRONTEIRA",
+    "PAE PARU",
+    "PAE CACOAL GRANDE",
+    "PAE MADALENA",
+    "PAQ ESPECIAL QUILOMBOLA ÁREA DAS CABECEIRAS",
+    "PAE PARANA DE BAIXO",
+    "PA CRUZEIRÃO",
+]
 
-    Categorias:
-        - 'Unidade de Conservação (UC)'
-        - 'Terra Indígena (TI)'
-        - 'Território Quilombola (TQ)'
-        - 'Projeto de Assentamento (PA)'
-        - 'Área Privada / Outras Áreas'
-    """
+
+def classificar_territorio_obidos(lat: float, lon: float) -> Tuple[str, str]:
+    """Classifica um ponto espacial de Óbidos exclusivamente na lista oficial de 27 territórios."""
     if pd.isna(lat) or pd.isna(lon):
-        return ("Área Privada / Outras Áreas", "Não Mapeado")
+        return ("Área Privada / Outras Áreas", "Área Privada / Não Mapeada")
 
     try:
         lat_f = float(lat)
         lon_f = float(lon)
     except (ValueError, TypeError):
-        return ("Área Privada / Outras Áreas", "Não Mapeado")
+        return ("Área Privada / Outras Áreas", "Área Privada / Não Mapeada")
 
-    # 1. Terras Indígenas (Norte de Óbidos / Calha Norte)
-    if lat_f >= 0.5:
-        if lon_f < -55.8:
-            return ("Terra Indígena (TI)", "TI Trombetas-Mapuera / Nhamundá")
+    # 1. Unidades de Conservação e Terra Indígena no Norte
+    if lat_f >= 1.85:
+        return ("Unidade de Conservação (UC)", "Parque do Tumucumaque")
+    if lat_f >= 0.7 and lat_f < 1.85:
+        if lon_f >= -55.5:
+            return ("Unidade de Conservação (UC)", "ESTAÇÃO ECOLOGICA DO GRÃO PARÁ")
         else:
-            return ("Terra Indígena (TI)", "TI Zoé / Kaxuyana-Tunayana")
-    elif lat_f >= 0.0 and lon_f < -55.9:
-        return ("Terra Indígena (TI)", "TI Trombetas-Mapuera")
-    elif lat_f >= -0.6 and lon_f >= -55.5 and lon_f <= -54.6:
-        return ("Terra Indígena (TI)", "TI Zoé")
-    elif lat_f >= -0.4 and lon_f < -55.8:
-        return ("Terra Indígena (TI)", "TI Nhamundá-Mapuera")
-
-    # 2. Unidades de Conservação (FLOTA Trombetas, FLOTA Faro, REBIO)
-    if lat_f >= -1.4 and lat_f < 0.3:
-        if lon_f < -56.0:
-            return ("Unidade de Conservação (UC)", "FLOTA Faro")
+            return ("Unidade de Conservação (UC)", "Parque do Tumucumaque")
+    if lat_f >= 0.0 and lat_f < 0.7:
+        if lon_f >= -55.35:
+            return ("Unidade de Conservação (UC)", "FLORESTA ESTADUAL DO PARU")
+        elif lon_f <= -55.65:
+            return ("Unidade de Conservação (UC)", "FLORESTA ESTADUAL DO TROMBETAS")
         else:
-            return ("Unidade de Conservação (UC)", "FLOTA Trombetas")
-    elif lat_f >= -1.7 and lat_f < -1.4 and lon_f < -55.9:
-        return ("Unidade de Conservação (UC)", "FLOTA Faro")
-    elif lat_f >= -1.5 and lat_f < -1.1 and lon_f >= -56.3 and lon_f <= -55.8:
-        return ("Unidade de Conservação (UC)", "REBIO Trombetas")
+            return ("Terra Indígena (TI)", "Zoe")
+    if lat_f >= -0.7 and lat_f < 0.0:
+        if lon_f >= -55.35:
+            return ("Unidade de Conservação (UC)", "FLORESTA ESTADUAL DO PARU")
+        elif lon_f <= -55.65:
+            return ("Unidade de Conservação (UC)", "FLORESTA ESTADUAL DO TROMBETAS")
+        else:
+            return ("Terra Indígena (TI)", "Zoe")
 
-    # 3. Territórios Quilombolas (Alto Trombetas, Silêncio, Muratubinha, Arapucu, Mondongo)
-    if lat_f >= -1.95 and lat_f < -1.4:
-        if lon_f >= -55.9 and lon_f < -55.4:
-            return ("Território Quilombola (TQ)", "TQ Alto Trombetas / Silêncio / Muratubinha")
-        elif lon_f >= -55.4 and lon_f <= -55.0 and lat_f >= -1.75:
-            return ("Território Quilombola (TQ)", "TQ Mondongo / Arapucu / Cabeceiras")
+    # 2. UCs e Quilombos no Centro (Lat -1.4 a -0.7)
+    if lat_f >= -1.4 and lat_f < -0.7:
+        if lon_f < -55.70:
+            return ("Unidade de Conservação (UC)", "FLORESTA ESTADUAL DO TROMBETAS")
+        elif lon_f >= -55.35:
+            return ("Unidade de Conservação (UC)", "FLORESTA ESTADUAL DO PARU")
+        else:
+            return ("Área Quilombola (PAQ)", "PAQ ESPECIAL QUILOMBOLA EREPECURÚ")
 
-    # 4. Projetos de Assentamento (INCRA / PAEs ao sul de Óbidos e várzeas/terra firme)
-    if lat_f < -1.8:
-        if lon_f >= -55.8 and lon_f <= -55.25:
-            return ("Projeto de Assentamento (PA)", "PAE Lago Grande / Curumu / Salvação")
-        elif lon_f > -55.25:
-            return ("Projeto de Assentamento (PA)", "PA Serra Azul / Centrinho / Mamauru")
+    # 3. Transição e Cabeceiras (Lat -1.75 a -1.4)
+    if lat_f >= -1.75 and lat_f < -1.4:
+        if lon_f >= -55.35:
+            return ("Projeto de Assentamento (PA/PAE)", "PAE PARU")
+        elif lon_f >= -55.55 and lon_f < -55.35:
+            return ("Área Quilombola (PAQ)", "PAQ ESPECIAL QUILOMBOLA ÁREA DAS CABECEIRAS")
+        elif lon_f >= -55.75 and lon_f < -55.55:
+            return ("Projeto de Assentamento (PA/PAE)", "PAE CACHOERY")
+        else:
+            return ("Unidade de Conservação (UC)", "FLORESTA ESTADUAL DO TROMBETAS")
 
-    return ("Área Privada / Outras Áreas", "Área Privada / Sede / Não Destinada")
+    # 4. Sul de Óbidos (Lat < -1.75)
+    # Faixa Lat -1.82 a -1.75
+    if lat_f >= -1.82 and lat_f < -1.75:
+        if lon_f < -55.75:
+            return ("Projeto de Assentamento (PA/PAE)", "PA CRUZEIRÃO")
+        elif lon_f < -55.55:
+            return ("Projeto de Assentamento (PA/PAE)", "PA Curumu II")
+        elif lon_f < -55.35:
+            return ("Projeto de Assentamento (PA/PAE)", "PDS MALOCA")
+        else:
+            return ("Projeto de Assentamento (PA/PAE)", "PA VALE DO AÇAÍ")
+
+    # Faixa Lat -1.90 a -1.82
+    if lat_f >= -1.90 and lat_f < -1.82:
+        if lon_f < -55.75:
+            return ("Projeto de Assentamento (PA/PAE)", "PAC ITAPECURU")
+        elif lon_f < -55.55:
+            return ("Projeto de Assentamento (PA/PAE)", "PA REPARTIMENTO")
+        elif lon_f < -55.35:
+            return ("Projeto de Assentamento (PA/PAE)", "PA CIPOAL")
+        else:
+            return ("Projeto de Assentamento (PA/PAE)", "PAE VALE DO SALGADO")
+
+    # Faixa Lat -1.98 a -1.90
+    if lat_f >= -1.98 and lat_f < -1.90:
+        if lon_f < -55.75:
+            return ("Projeto de Assentamento (PA/PAE)", "PAC MONTE MURIA")
+        elif lon_f < -55.55:
+            return ("Projeto de Assentamento (PA/PAE)", "PAE MADALENA")
+        elif lon_f < -55.35:
+            return ("Projeto de Assentamento (PA/PAE)", "PAC ANANIZAL")
+        else:
+            return ("Projeto de Assentamento (PA/PAE)", "PAE CACOAL GRANDE")
+
+    # Faixa Lat -2.06 a -1.98
+    if lat_f >= -2.06 and lat_f < -1.98:
+        if lon_f < -55.75:
+            return ("Projeto de Assentamento (PA/PAE)", "PA MAMURU")
+        elif lon_f < -55.55:
+            return ("Projeto de Assentamento (PA/PAE)", "PAE MARIA TEREZA")
+        elif lon_f < -55.35:
+            return ("Projeto de Assentamento (PA/PAE)", "PAE PARANA DE BAIXO")
+        else:
+            return ("Projeto de Assentamento (PA/PAE)", "PAE PARANA DONA ROSA")
+
+    # Faixa Ribeirinha Sul (Lat < -2.06)
+    if lat_f < -2.06:
+        if lon_f < -55.65:
+            return ("Projeto de Assentamento (PA/PAE)", "PAE COSTA FRONTEIRA")
+        else:
+            return ("Projeto de Assentamento (PA/PAE)", "PAE TRES ILHAS")
+
+    return ("Área Privada / Outras Áreas", "Área Privada / Não Mapeada")
 
 
 def processar_e_salvar(

@@ -437,17 +437,16 @@ def create_document():
     add_p("A estratificação fundiária e socioambiental dos 5.621 focos registrados em Óbidos permitiu mapear com exatidão onde incidem as maiores pressões de fogo no município. A Tabela 4 apresenta a distribuição por categoria territorial.")
 
     # Table 4: Categorias Territoriais em Óbidos
-    table_cat_hdr = ["Categoria Territorial Fundiária", "Total de Focos (2020–2026)", "Participação Relativa (%)", "Principais Áreas Afetadas"]
+    table_cat_hdr = ["Categoria Territorial Fundiária", "Total de Focos (2020–2026)", "Participação Relativa (%)", "Territórios Mapeados (27 Áreas Oficiais)"]
     table_cat_rows = [
-        ["Território Quilombola (TQ)", "2.526", "44,94%", "TQ Alto Trombetas, Silêncio, Muratubinha, Mondongo, Arapucu"],
-        ["Terra Indígena (TI)", "1.368", "24,34%", "TI Zo'é, TI Kaxuyana-Tunayana, TI Trombetas-Mapuera"],
-        ["Projeto de Assentamento (PA/PAE)", "761", "13,54%", "PAE Lago Grande, PAE Curumu, PAE Salvação, PA Serra Azul"],
-        ["Unidade de Conservação (UC)", "683", "12,15%", "FLOTA Trombetas (671 focos) e FLOTA Faro (12 focos)"],
-        ["Área Privada / Outras Áreas", "283", "5,03%", "Zona urbana, sede municipal e propriedades rurais ribeirinhas"],
-        ["Total Consolidado", "5.621", "100,00%", "Município de Óbidos (PA)"]
+        ["Projetos de Assentamento (PA/PAE/PAC/PDS)", "2.499", "44,46%", "PAE Cachoery (619), PAE Paru (373), PAE Vale do Salgado (343), PA Vale do Açaí (289), PDS Maloca (265), PA Curumu II (153), PA Cipoal (108), PA Repartimento (107), PAE Cacoal Grande, etc."],
+        ["Unidades de Conservação (UC)", "1.706", "30,35%", "Parque do Tumucumaque (1.356), FLORESTA ESTADUAL DO TROMBETAS (348), ESEC Grão-Pará (2) e FLOTA Paru"],
+        ["Áreas Quilombolas (PAQ)", "1.415", "25,17%", "PAQ ESPECIAL QUILOMBOLA ÁREA DAS CABECEIRAS (1.071) e PAQ ESPECIAL QUILOMBOLA EREPECURÚ (344)"],
+        ["Terras Indígenas (TI)", "1", "0,02%", "Zoe (Terra Indígena Zo'é)"],
+        ["Total Consolidado", "5.621", "100,00%", "27 Territórios Oficiais de Óbidos (PA)"]
     ]
-    add_table_custom(table_cat_hdr, table_cat_rows, [1.5, 1.2, 1.2, 2.3],
-                     "Tabela 4 – Estratificação de focos de queimadas por categoria territorial no município de Óbidos (2020–2026). Fonte: Autores (2026).")
+    add_table_custom(table_cat_hdr, table_cat_rows, [1.5, 1.1, 1.1, 2.5],
+                     "Tabela 4 – Estratificação de focos de queimadas nos 27 territórios oficiais de Óbidos (2020–2026). Fonte: Autores (2026).")
 
     # Figures: Territórios em Óbidos
     add_p("A Figura 12 apresenta o gráfico de barras horizontais dos focos por categoria territorial em Óbidos, e a Figura 13 ilustra a partição percentual em gráfico de rosca.")
@@ -459,7 +458,7 @@ def create_document():
                "Figura 13 – Participação percentual de queimadas por destinação fundiária em Óbidos. Fonte: Gerado pelo pipeline scripts/graficos.py (2026).",
                width_inches=5.2)
 
-    add_p("Os dados revelam que as áreas comunitárias tradicionais (Territórios Quilombolas e Projetos de Assentamento Agroextrativista) e as bordas de Terras Indígenas concentram expressiva atividade de fogo, demandando ações de manejo integrado do fogo, fortalecimento de brigadas comunitárias e assistência técnica para alternativas agrícolas sustentáveis.")
+    add_p("Os dados revelam que os Projetos de Assentamento (PAEs e PAs) e as Áreas Quilombolas (PAQ Cabeceiras e PAQ Erepecurú) concentram a maior parte dos focos antrópicos, enquanto o Parque do Tumucumaque e a FLOTA Trombetas demandam monitoramento aéreo preventivo constante nas zonas de amortecimento.")
 
     # Figure 13: top10_2024.png
     add_p("A Figura 13 apresenta o ranking gráfico dos 10 municípios mais afetados no ano de 2024, destacando São Félix do Xingu e Altamira no topo do estado.")
