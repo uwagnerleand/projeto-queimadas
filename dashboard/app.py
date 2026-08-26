@@ -193,16 +193,57 @@ html, body, [class*="css"] {
 .badge-medium { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
 .badge-low { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
 section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #090d16 0%, #0f172a 100%);
+    background: linear-gradient(180deg, #090d16 0%, #0f172a 100%) !important;
     border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
-section[data-testid="stSidebar"] * {
-    color: #f8fafc;
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3,
+section[data-testid="stSidebar"] p,
+section[data-testid="stSidebar"] span,
+section[data-testid="stSidebar"] label {
+    color: #f8fafc !important;
 }
 section[data-testid="stSidebar"] .stSelectbox label {
-    font-weight: 600 !important;
-    font-size: 0.9rem !important;
+    font-weight: 700 !important;
+    font-size: 0.92rem !important;
     color: #cbd5e1 !important;
+    margin-bottom: 0.25rem !important;
+}
+/* Estilização das caixas de seleção na sidebar (alto contraste) */
+section[data-testid="stSidebar"] div[data-baseweb="select"] > div {
+    background-color: #1e293b !important;
+    border: 1px solid #475569 !important;
+    border-radius: 10px !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+}
+section[data-testid="stSidebar"] div[data-baseweb="select"] * {
+    color: #ffffff !important;
+}
+section[data-testid="stSidebar"] div[data-baseweb="select"] svg {
+    fill: #94a3b8 !important;
+}
+/* Menus suspensos e opções (dropdown popover) */
+div[data-baseweb="popover"] ul,
+div[data-baseweb="menu"],
+ul[role="listbox"] {
+    background-color: #0f172a !important;
+    border: 1px solid #334155 !important;
+    border-radius: 10px !important;
+}
+div[data-baseweb="popover"] li,
+div[data-baseweb="menu"] li,
+li[role="option"] {
+    color: #f8fafc !important;
+    background-color: #0f172a !important;
+}
+div[data-baseweb="popover"] li:hover,
+div[data-baseweb="menu"] li:hover,
+li[role="option"]:hover,
+li[aria-selected="true"] {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
 }
 .stTabs [data-baseweb="tab-list"] {
     background: white;
